@@ -1,0 +1,2503 @@
+/* ================================================================
+   Kyumin Lee. dark editorial. the page lives in the same world the
+   intro ends in: deep water under a low sun, not paper.
+   ================================================================ */
+
+:root{
+  /* ground. cool neutral, not paper */
+  --abyss:#FAFAFA;
+  --deep:#F2F3F2;
+  --panel:#EFF0EF;
+  --panel-2:#E8EAE9;
+
+  /* line */
+  --hair:#E2E4E3;
+  --hair-2:#D2D5D4;
+  --rule-c:#B4B9B8;
+
+  /* ink */
+  --ink:#0B0C0C;
+  --muted:#55605E;
+  --dim:#626867;      /* was #8A9391: 3.02 : 1 on the page ground, under the 4.5 small text floor */
+  --num:#636665;      /* section numbers. separated from --rule-c so the rules can stay hairlines */
+
+  /* three accents that are actually three colours */
+  --sun:#E0662A;        /* low sun. warm, used once per screen */
+  --sun-deep:#B04A18;
+  --sea-1:#0E6B60;      /* deep water. links, data */
+  --sea-2:#0A544B;
+  --foam:#7FD6C7;       /* foam. hover and focus only */
+
+  --disp:"Playfair Display",Georgia,"Times New Roman",serif;
+  --lat:"Geist",-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;
+  --sans:var(--lat);
+  /* Pretendard was named here but never loaded, so every Korean run on the
+     page was falling through to whatever the operating system happened to
+     have. Latin stays first in both stacks so mixed runs keep Geist and
+     Playfair for the roman glyphs. */
+  --kor:"Geist","Noto Sans KR","Pretendard Variable",-apple-system,"Apple SD Gothic Neo",sans-serif;
+  /* the Korean face leads. With Playfair first the browser had to miss on
+   every Hangul glyph before falling through, and it was landing on a body
+   gothic instead: measured 972.58px rendered against 971.52px for Noto
+   Sans KR and 1020.10px for Noto Serif KR. The largest words on the page
+   were a Didone in English and a plain sans in Korean. */
+  --kor-disp:"Noto Serif KR","Apple SD Gothic Neo","Playfair Display",serif;
+  --mono:"Geist Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+
+  --col:min(92vw,1240px);
+  /* elevation. three layers, because one blurred box reads as a sticker */
+  --sh-1:0 1px 2px rgba(12,26,24,.05), 0 2px 6px rgba(12,26,24,.04);
+  --sh-2:0 2px 4px rgba(12,26,24,.05), 0 8px 18px rgba(12,26,24,.06), 0 1px 0 rgba(255,255,255,.6) inset;
+  --sh-3:0 4px 8px rgba(12,26,24,.06), 0 18px 44px rgba(12,26,24,.10), 0 40px 90px rgba(12,26,24,.07);
+
+  /* easing. elegance is 0.12s and 1.05s living on the same screen */
+  --e-house:cubic-bezier(.625,.05,0,1);   /* holds, then throws */
+  --e-out:cubic-bezier(.16,1,.3,1);
+  --e-in:cubic-bezier(.7,0,.84,0);
+  --e-io:cubic-bezier(.83,0,.17,1);
+  --e-soft:cubic-bezier(.25,.46,.45,.94);
+  --e-snap:cubic-bezier(.34,1.56,.64,1);
+  --e-lin:linear;
+  --d-1:.12s;
+  --d-2:.28s;
+  --d-3:.55s;
+  --d-4:1.05s;
+  --ease:var(--e-out);
+}
+
+*{box-sizing:border-box}
+html{background:var(--abyss)}
+body{
+  margin:0;background:var(--abyss);color:var(--ink);
+  font-family:var(--lat);font-size:17px;line-height:1.6;font-weight:400;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+  letter-spacing:-.006em;
+}
+html[data-lang="ko"] body{font-family:var(--kor);letter-spacing:-.018em}
+::selection{background:var(--sun);color:var(--abyss)}
+
+.wrap{width:var(--col);margin:0 auto}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:0 28px}
+.rail-l{grid-column:1 / span 2}
+.rail-r{grid-column:11 / span 2}
+/* content never starts in the rail column, or the sticky head stacks on it */
+.build{grid-column:4 / span 6}
+.sell{grid-column:6 / span 6}
+.rail-r ~ .build,.rail-r + .build{grid-column:1 / span 6}
+
+/* ---------------- top bar ---------------- */
+.top{
+  position:fixed;inset:0 0 auto;z-index:60;height:58px;
+  background:var(--abyss);
+  border-bottom:1px solid var(--hair);
+}
+html.inverted .top{background:#07100F}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;height:58px}
+.top .nm{
+  font-size:14px;font-weight:600;letter-spacing:-.01em;color:var(--ink);
+  text-decoration:none;
+}
+.top .set{display:flex;align-items:center;gap:22px}
+.top .set a,.top .set button,.top .idx{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--dim);background:none;border:0;padding:8px 0;cursor:pointer;text-decoration:none;
+  transition:color .2s var(--ease);
+}
+.top .set a:hover,.top .set button:hover{color:var(--sun)}
+.top .idx{color:var(--num);cursor:default}
+
+.skip-link{
+  position:absolute;left:-9999px;top:0;z-index:100;
+  background:var(--sun);color:var(--abyss);padding:12px 20px;
+  font-family:var(--mono);font-size:12px;letter-spacing:.1em;
+}
+.skip-link:focus{left:0}
+:focus-visible{outline:2px solid var(--sun);outline-offset:3px}
+
+/* ---------------- sections ---------------- */
+section{padding:clamp(88px,11vw,168px) 0;position:relative}
+.sec-head{align-self:start;position:sticky;top:104px;padding-top:clamp(28px,4vw,72px)}
+.sec-head .n{
+  display:block;font-family:var(--mono);font-size:12px;letter-spacing:.2em;
+  color:var(--num);
+}
+.sec-head .lb{
+  display:block;margin-top:12px;padding-top:12px;border-top:1px solid var(--hair);
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--dim);
+}
+html[data-lang="ko"] .sec-head .lb{font-family:var(--kor);letter-spacing:.1em}
+
+/* ---------------- hero ---------------- */
+#s1{
+  min-height:100svh;display:flex;flex-direction:column;justify-content:center;
+  padding:0;overflow:hidden;
+}
+#field{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none;opacity:.30}
+#s1 > .wrap,#s1 > .horizon{position:relative;z-index:1}
+.eyebrow{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--dim);margin:0 0 clamp(26px,4vw,52px);
+}
+.hero-l,.hero-r{
+  font-family:var(--disp);font-weight:700;
+  /* the longest line is "Dealmaker on the other.", 23 characters. sizing
+     from the column width rather than the viewport is what stops it
+     wrapping at every awkward window size. */
+  font-size:min(8.2vw, calc(var(--col) / 10.9), 124px);
+  line-height:.92;letter-spacing:-.045em;
+  margin:0;color:var(--ink);white-space:nowrap;
+}
+html[data-lang="ko"] .hero-l,html[data-lang="ko"] .hero-r{
+  font-size:min(9.4vw, calc(var(--col) / 7.2), 132px);
+}
+.hero-l .w,.hero-r .w{display:inline-block;white-space:nowrap}
+.hero-l,.hero-r{
+  font-family:var(--disp);font-weight:700;overflow:hidden;padding-bottom:.06em}
+.hero-r{color:var(--muted)}
+/* the hero is the one place the Korean face has to carry 132px, so it takes
+   the display stack too, at the weight that matches Playfair 600 optically */
+html[data-lang="ko"] .hero-l,html[data-lang="ko"] .hero-r{
+  /* 700 in a Korean serif carries far more colour than Playfair 600 does in
+     Latin, so the two language versions of the same line did not weigh the
+     same on the page. 500 matches. */
+  font-family:var(--kor-disp);letter-spacing:-.045em;font-weight:500;line-height:1.16}
+
+.horizon{width:var(--col);margin:clamp(22px,3vw,40px) auto}
+.rule{height:1px;background:linear-gradient(90deg,var(--rule-c),var(--sun) 22%,var(--rule-c) 60%,transparent);border:0;margin:0;width:100%}
+
+/* ---------------- prose ---------------- */
+.lead{
+  font-family:var(--lat);font-weight:450;
+  font-size:clamp(21px,2.3vw,30px);line-height:1.36;letter-spacing:-.022em;
+  color:var(--ink);margin:0 0 30px;font-weight:450;
+}
+.prose p{font-size:16.5px;line-height:1.74;color:var(--muted);margin:0 0 20px;max-width:62ch}
+.prose p:last-child{margin-bottom:0}
+.cap{font-size:17px;line-height:1.68;color:var(--muted);margin:0 0 16px;max-width:58ch}
+.b1{color:var(--ink)}
+.data{
+  font-family:var(--mono);font-size:12.5px;line-height:1.62;letter-spacing:.01em;
+  color:var(--sun);margin:0 0 34px;
+}
+html[data-lang="ko"] .data{font-family:var(--kor);letter-spacing:0}
+
+.pivot{
+  font-family:var(--disp);font-weight:600;
+  font-size:clamp(24px,3.4vw,46px);line-height:1.2;letter-spacing:-.03em;
+  font-weight:500;color:var(--ink);margin:clamp(50px,7vw,96px) 0;max-width:22ch;
+}
+.big-line{
+  font-family:var(--lat);font-weight:640;
+  /* 58px overflowed the six column measure: "Everything outside Korea" needs
+     642px in a 606px column, so the intended break dropped one word onto a
+     line of its own. 54px is the largest size at which every authored break
+     still holds. balance is the safety net for widths not measured here. */
+  font-size:clamp(28px,4.4vw,54px);line-height:1.04;letter-spacing:-.042em;
+  text-wrap:balance;
+  margin:0 0 32px;color:var(--ink);
+}
+html[data-lang="ko"] .big-line{
+  font-family:var(--kor-disp);font-weight:500;letter-spacing:-.04em;line-height:1.24}
+
+/* ---------------- marine corps ---------------- */
+.seal{
+  width:clamp(96px,10vw,146px);aspect-ratio:1;object-fit:contain;display:block;
+  margin:0 0 clamp(26px,3.4vw,42px);
+}
+
+/* ---------------- photo plates ---------------- */
+.plate-row{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:16px;
+  margin-top:clamp(52px,7vw,104px);
+}
+.plate{margin:0;position:relative}
+.plate.w2{grid-column:span 2}
+.plate .ph{
+  aspect-ratio:4/3;background:var(--panel);border:1px solid var(--hair);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--rule-c);
+  transition:border-color .5s var(--ease),background .5s var(--ease);
+}
+.plate.w2 .ph{aspect-ratio:16/9}
+.plate:hover .ph{border-color:var(--hair-2);background:var(--panel-2)}
+.plate figcaption{
+  margin-top:10px;font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;
+  color:var(--dim);text-transform:uppercase;
+}
+html[data-lang="ko"] .plate figcaption{font-family:var(--kor);letter-spacing:.06em}
+
+/* ---------------- education ---------------- */
+.edu{list-style:none;margin:clamp(38px,5vw,64px) 0 0;padding:0;border-top:1px solid var(--hair-2)}
+.edu-row{
+  display:grid;grid-template-columns:150px 1fr auto;gap:0 44px;align-items:center;
+  padding:clamp(38px,5vw,64px) 0;border-bottom:1px solid var(--hair);
+  transition:background .5s var(--ease);
+}
+.edu-row:hover{background:linear-gradient(90deg,transparent,var(--panel) 40%,transparent)}
+.edu-mark{display:flex;align-items:center;min-height:84px}
+.edu-mark img{max-width:100%;max-height:84px;object-fit:contain;filter:brightness(1.9) saturate(.75)}
+.edu-wordmark{font-size:56px;line-height:1;color:var(--ink);opacity:.9;font-family:"Apple SD Gothic Neo",serif}
+.edu-name{
+  font-family:var(--disp);font-weight:600;
+  font-size:clamp(24px,3.2vw,44px);line-height:1.14;letter-spacing:-.032em;
+  font-weight:500;margin:0 0 12px;color:var(--ink);
+}
+/* SplitText's line mask is an overflow:clip box the height of one line, so a
+   descender that hangs below the baseline is cut: the g in Whimoon High
+   School lost its tail. The padding gives the clip box the room and the
+   negative margin gives the layout back, so nothing moves. */
+.big-line .ln,.pivot .ln,.edu-name .ln{ padding-bottom:.14em;margin-bottom:-.14em }
+.edu-sub{
+  display:block;margin-top:11px;font-family:var(--mono);font-size:10.5px;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--dim);font-weight:400;
+}
+.edu-meta{margin:0;font-size:14.5px;color:var(--muted)}
+.edu-years{font-family:var(--mono);font-size:13px;letter-spacing:.08em;color:var(--num)}
+
+/* ---------------- private chapter ---------------- */
+#s6{background:var(--abyss);padding:0}
+.slots{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--hair)}
+/* .wide never actually spanned, so three armed slots left a hole in the
+   bottom right. the jump gets the full width and the other two share the
+   row under it. */
+.slot.wide{grid-column:1 / -1;aspect-ratio:16/7.6}
+.slot{position:relative;aspect-ratio:16/10;background:var(--deep);
+  display:flex;align-items:flex-end;padding:26px;overflow:hidden}
+.slot .ph{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;color:var(--hair-2);
+}
+.slate{font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;color:var(--dim);position:relative}
+
+/* ---------------- disclosure ---------------- */
+.work-head{
+  grid-column:1 / span 12;display:flex;align-items:center;gap:18px;padding:22px 0 0;
+}
+#s3 .build:has(.work-head){grid-column:1 / span 12}
+.wh-lb{
+  font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--ink);flex:0 0 auto;
+}
+html[data-lang="ko"] .wh-lb{font-family:var(--kor);letter-spacing:.1em}
+.wh-rule{flex:1 1 auto;height:1px;background:var(--hair-2);transform-origin:left center}
+.wh-n{
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--num);
+  flex:0 0 auto;font-variant-numeric:tabular-nums;
+}
+.workpanel{
+  grid-column:1 / span 12;display:grid;grid-template-columns:repeat(12,1fr);
+  gap:0 28px;row-gap:88px;padding:34px 0 8px;
+}
+.workpanel[hidden]{display:none}
+
+/* ---------------- contact ---------------- */
+footer{padding:clamp(88px,11vw,160px) 0 clamp(70px,9vw,120px)}
+footer a{color:var(--sun);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .25s}
+footer a:hover{border-bottom-color:var(--sun)}
+.tel,.mail{font-family:var(--mono);font-size:clamp(18px,2.4vw,30px);letter-spacing:-.01em;display:block;margin:6px 0}
+
+/* ---------------- intro overlay ---------------- */
+#intro{position:fixed;inset:0;z-index:200;background:var(--abyss)}
+#intro canvas{width:100%;height:100%;display:block}
+#skip{
+  position:absolute;right:30px;bottom:28px;background:none;border:0;cursor:pointer;
+  font-family:var(--mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;
+  color:#4A5C66;padding:12px;transition:color .25s;
+}
+#skip:hover{color:var(--foam)}
+html.intro-on,html.intro-on body{overflow:hidden}
+
+/* ---------------- language ---------------- */
+[data-en]{display:none}
+html[data-lang="en"] [data-en]{display:revert}
+html[data-lang="ko"] [data-ko]{display:revert}
+html[data-lang="en"] [data-ko]{display:none}
+/* the base rule two lines up is (0,1,0) and loses to anything that sets
+   display on a descendant, so the Korean pass has to be said outright */
+html[data-lang="ko"] [data-en]{display:none}
+html.no-motion #field{display:none}
+
+/* ---------------- responsive ---------------- */
+@media(max-width:900px){
+  body{font-size:16px}
+  .grid{display:block}
+  .sec-head{position:static;margin-bottom:30px}
+  .sec-head .lb{display:inline-block;margin-left:16px;border:0;padding:0}
+  .sec-head .n{display:inline-block}
+  .plate-row{grid-template-columns:repeat(2,1fr)}
+  .plate.w2{grid-column:span 2}
+  .slots{grid-template-columns:1fr}
+  .edu-row{grid-template-columns:88px 1fr;gap:0 24px}
+  .edu-mark{min-height:56px}.edu-mark img{max-height:56px}
+  .edu-wordmark{font-size:40px}
+  .edu-years{display:none}
+  .top .set{gap:15px}
+}
+
+
+/* ================================================================
+   the water. the page is light, but the ocean never leaves it.
+   ================================================================ */
+:root{
+  --sea-1:#0E6B60;
+  --sea-2:#0A4A45;
+  --sea-3:#06302E;
+  --sky-1:#DCEAE8;
+  --sky-2:#EFF4F3;
+  --surf:#7FD6C7;
+}
+
+/* hero sits under a sky that turns to water at the rule */
+#s1{
+  background:
+    radial-gradient(120% 70% at 76% 18%, rgba(255,176,92,.16), rgba(255,176,92,0) 58%),
+    linear-gradient(180deg, var(--sky-2) 0%, var(--sky-1) 46%, #D3E5E2 52%, #E7EFEE 100%);
+}
+#s1::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:34%;
+  background:linear-gradient(180deg, rgba(14,107,96,0) 0%, rgba(14,107,96,.07) 100%);
+  pointer-events:none;z-index:0;
+}
+
+/* the rule is the waterline */
+.rule{
+  height:1px;border:0;margin:0;width:100%;
+  background:linear-gradient(90deg,
+    rgba(180,185,184,0) 0%, var(--surf) 14%, var(--sea-1) 38%,
+    rgba(255,154,77,.9) 62%, rgba(180,185,184,.5) 88%, rgba(180,185,184,0) 100%);
+}
+
+/* service. these were border islands. the section is a shoreline */
+#s5{
+  background:linear-gradient(180deg, #FAFAFA 0%, #EDF4F3 34%, #DCEBE9 100%);
+}
+#s5 .seal{ filter:drop-shadow(0 10px 26px rgba(10,74,69,.18)); }
+#s5 .plate .ph{
+  background:linear-gradient(160deg,#CFE3E0,#B9D6D2);
+  border-color:rgba(14,107,96,.22);color:rgba(10,74,69,.42);
+}
+
+/* education floats back up to the surface */
+#s6b{ background:linear-gradient(180deg,#DCEBE9 0%, #F2F6F5 44%, #FAFAFA 100%); }
+
+/* ---- 06 is a wall, not water ----
+   The private chapter used to be the one deep dive on the page. It is a
+   plaster wall now: the things themselves pinned to it, the footage hung
+   on it as three prints. Everything the section paints comes off a handful
+   of custom properties, so night mode is one swap rather than a second
+   sheet of overrides. The drop back into deep water happens at the very
+   bottom in .s6-fall, which is what #s7 still rises out of. */
+#s6{
+  --w-ground:#ECEAE5; --w-ink:#131313; --w-dim:#6E6D69;
+  --w-line:rgba(19,19,19,.24); --w-red:#C8412B;
+  --w-mount:#FFFFFF; --w-card:#FBFAF7; --w-post:#F0E27C;
+  --w-cap:#2F4A78; --w-capdim:#8E8C87; --w-tape:rgba(255,236,163,.78);
+  padding:clamp(96px,10.5vw,166px) 0 0;
+  background:
+    radial-gradient(rgba(19,19,19,.055) .6px,transparent .7px) 0 0 / 4px 4px,
+    var(--w-ground);
+  color:var(--w-ink);
+}
+html.inverted #s6{
+  --w-ground:#141110; --w-ink:#EFE7DC; --w-dim:#93877A;
+  --w-line:rgba(239,231,220,.22); --w-red:#D8432B;
+  --w-mount:#1D1918; --w-card:#2A2320; --w-post:#B9A85E;
+  --w-cap:#DCD2C5; --w-capdim:#786C60; --w-tape:rgba(214,196,132,.30);
+  background:
+    radial-gradient(rgba(239,231,220,.05) .6px,transparent .7px) 0 0 / 4px 4px,
+    var(--w-ground);
+}
+#s6 .slots{ background:none;gap:clamp(18px,3vw,26px); }
+
+/* ---- 06, the wall ----
+   Head on the left rail, the display line and the paper under it in the
+   middle six, one object hung on the right four. Nothing is centred: a
+   wall is looked along, not addressed. */
+#s6 .sell{ grid-column:1 / span 7;grid-row:2;text-align:left;margin-top:clamp(40px,5vw,78px) }
+/* The marquee is placed at 4% of the section it belongs to. Every other
+   section is roughly a screen tall, so 4% is the top edge; this one is three
+   and a half screens because of the band inside it, and 4% put a 116px
+   outline straight through the display line. Fixed distance off the top
+   here, and the head drops to meet it. The element is .overline-rail: the
+   .overline attribute selector never matches anything, marquee.js builds
+   the rail and throws the source node away. */
+#s6 .overline-rail{ top:clamp(18px,2.2vw,42px) }
+
+/* The head is a band across the top rather than a sticky note in the left
+   rail. Everything under it then gets the whole twelve columns instead of
+   being squeezed into the middle six. */
+#s6 .sec-head{
+  grid-column:1 / span 12;grid-row:1;position:static;padding:0 0 14px;
+  display:flex;align-items:baseline;gap:clamp(14px,1.6vw,24px);
+  border-bottom:1px solid var(--w-line);
+}
+#s6 .sec-head .lb{ margin:0;padding:0;border-top:0 }
+#s6 .sec-head .lb::before{ display:none }
+#s6 .sec-head .rt{
+  margin-left:auto;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--w-dim);text-align:right;
+}
+html[data-lang="ko"] #s6 .sec-head .rt{ font-family:var(--kor);letter-spacing:.08em }
+#s6 .wall-side{ grid-column:8 / span 5;grid-row:2;align-self:start;margin-top:clamp(40px,5vw,78px);padding-top:clamp(4px,.8vw,14px) }
+#s6 .big-line.wall-h{
+  font-family:"Bricolage Grotesque",var(--lat),sans-serif;font-weight:800;
+  font-variation-settings:'opsz' 96,'wdth' 80;
+  font-size:clamp(44px,6.8vw,100px);line-height:.9;letter-spacing:-.026em;
+  color:var(--w-ink);text-wrap:initial;margin:0;
+}
+html[data-lang="ko"] #s6 .big-line.wall-h{
+  font-family:var(--kor-disp);font-weight:700;line-height:1.06;letter-spacing:-.03em;
+}
+/* the one word that is not work is the one word that is not filled in */
+#s6 .big-line.wall-h em{
+  font-style:normal;color:transparent;-webkit-text-stroke:1.8px var(--w-red);
+}
+#s6 .overline-item{ -webkit-text-stroke-color:rgba(19,19,19,.15) }
+html.inverted #s6 .overline-item{ -webkit-text-stroke-color:rgba(239,231,220,.15) }
+#s6 .overline-rail{ opacity:.9 }
+
+/* ---- the paper on it ---- */
+/* two columns, not a stack. a grid rather than a wrapping flex row, so the
+   pass takes whatever is left over and the note keeps its own width instead
+   of the pair dropping onto two lines the moment the column narrows. */
+#s6 .wall-row{
+  display:grid;grid-template-columns:minmax(0,330px) auto;justify-content:start;
+  gap:clamp(16px,2vw,30px);align-items:start;
+  margin-top:clamp(30px,4vw,56px);
+}
+#s6 .bp{
+  display:flex;width:100%;max-width:330px;font-family:var(--mono);
+  background:var(--w-card);border:1px solid var(--w-line);
+  box-shadow:0 16px 30px -18px rgba(0,0,0,.45);transform:rotate(-.7deg);
+}
+#s6 .bp-l{ flex:1;padding:12px 14px;border-right:2px dashed var(--w-line) }
+#s6 .bp-r{ width:74px;padding:12px 8px;text-align:center }
+#s6 .bp b{ display:block;font-size:9.5px;letter-spacing:.2em;font-weight:700;color:var(--w-red) }
+#s6 .bp-r b{ font-size:24px;letter-spacing:0;color:var(--w-ink);margin-bottom:6px }
+#s6 .bp .v{ display:block;margin-top:8px;font-size:11.5px;line-height:1.35;color:var(--w-ink) }
+#s6 .bp small{ display:block;margin-top:8px;font-size:8px;line-height:1.6;letter-spacing:.1em;color:var(--w-dim) }
+#s6 .postit{
+  width:clamp(196px,17vw,238px);padding:15px 17px 17px;background:var(--w-post);color:#2B2B2B;
+  font-family:"Caveat","Segoe Print",cursive;font-size:19px;line-height:1.28;font-weight:500;
+  box-shadow:0 14px 26px -14px rgba(0,0,0,.5);transform:rotate(2.4deg);
+}
+html[data-lang="ko"] #s6 .postit{ font-family:var(--kor);font-size:15.5px;line-height:1.62;font-weight:500 }
+html[data-lang="ko"] #s6 .postit b{ font-size:12.5px;letter-spacing:.04em }
+#s6 .postit b{ display:block;font-size:13px;letter-spacing:.06em;margin-bottom:7px;opacity:.62;font-weight:500 }
+#s6 .postit s{ opacity:.5 }
+#s6 .postit u{ text-decoration:none;position:relative }
+#s6 .postit u::after{
+  content:'';position:absolute;left:-1px;right:-1px;bottom:-1px;height:2px;
+  background:currentColor;transform:rotate(-.8deg);
+}
+
+#s6 .wall-lbl{
+  margin:clamp(20px,2.6vw,34px) 0 0;font-family:var(--mono);font-size:9.5px;
+  letter-spacing:.24em;text-transform:uppercase;color:var(--w-dim);
+}
+#s6 .wall-lbl u{ text-decoration:none;color:var(--w-red) }
+
+/* ---- the stack, clipped ---- */
+#s6 .stack{ position:relative;padding-top:16px }
+#s6 .stack .sh{
+  position:absolute;inset:16px 0 -10px;background:var(--w-mount);
+  box-shadow:0 20px 40px -26px rgba(0,0,0,.45),0 0 0 1px var(--w-line);
+}
+#s6 .stack .s1{ transform:rotate(-2.6deg) translate(-13px,7px) }
+#s6 .stack .s2{ transform:rotate(1.9deg) translate(14px,3px) }
+#s6 .sh-top{
+  position:relative;z-index:3;background:var(--w-mount);padding:12px 12px 42px;
+  box-shadow:0 34px 60px -30px rgba(0,0,0,.42),0 0 0 1px var(--w-line);
+}
+#s6 .sh-win{ aspect-ratio:4/3;overflow:hidden;background:#111 }
+#s6 .sh-win img{ width:100%;height:100%;object-fit:cover;display:block }
+#s6 .sh-chin{
+  position:absolute;left:15px;right:15px;bottom:13px;
+  display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+}
+#s6 .sh-chin .cw{ font-family:"Caveat","Segoe Print",cursive;font-size:19px;line-height:1.1;color:var(--w-cap) }
+#s6 .sh-chin small{ font-family:var(--mono);font-size:8.5px;letter-spacing:.18em;color:var(--w-capdim) }
+#s6 .bull{
+  position:absolute;left:50%;top:3px;margin-left:-23px;width:46px;height:19px;
+  border-radius:2px 2px 4px 4px;background:linear-gradient(#505054,#18181C);
+  box-shadow:0 9px 15px -9px rgba(0,0,0,.55);z-index:6;
+}
+#s6 .bull::before{
+  content:'';position:absolute;left:7px;right:7px;top:-11px;height:13px;
+  border:2px solid #6E6E76;border-bottom:none;border-radius:8px 8px 0 0;
+}
+#s6 .bull::after{
+  content:'';position:absolute;left:0;right:0;bottom:-5px;height:6px;
+  border-radius:0 0 3px 3px;background:linear-gradient(#2C2C31,#101013);
+}
+
+/* ---- each clip is a print. the mount is the .slot itself, so the track,
+       the pin and the sideways scrub all stay exactly where they were ---- */
+#s6 .slot,#s6 .slot.wide{
+  aspect-ratio:auto;display:block;overflow:visible;border-radius:0;
+  padding:clamp(10px,1.1vw,16px) clamp(10px,1.1vw,16px) clamp(44px,3.8vw,58px);
+  background:var(--w-mount);
+  box-shadow:0 34px 66px -34px rgba(0,0,0,.4),0 0 0 1px var(--w-line);
+}
+#s6 .slot .pv{
+  position:static;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;display:block;
+  filter:saturate(.92) contrast(1.02);
+}
+/* tape at both top corners, and a frame number in the chin. The base sheet
+   puts a dark scrim on .slot:has(.pv)::after for white type over footage; on
+   a paper mount there is nothing to scrim, so that pseudo element is the
+   second piece of tape instead. */
+#s6 .slot::before,#s6 .slot:has(.pv)::after{
+  content:'';position:absolute;top:-10px;width:clamp(58px,6vw,88px);height:22px;
+  background:var(--w-tape);box-shadow:0 1px 2px rgba(0,0,0,.14);
+  z-index:3;pointer-events:none;
+}
+#s6 .slot::before{ left:-14px;transform:rotate(-6deg) }
+#s6 .slot:has(.pv)::after{ left:auto;right:-12px;bottom:auto;transform:rotate(5deg) }
+#s6 .slot .lft{ display:flex;align-items:baseline;gap:clamp(10px,1.1vw,16px);min-width:0 }
+#s6 .slot .pn{
+  font-style:normal;font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;
+  color:var(--w-capdim);flex:none;
+}
+#s6 .slot .pn::after{ content:'';display:inline-block;width:14px;height:1px;background:currentColor;
+  vertical-align:middle;margin-left:10px;opacity:.7 }
+#s6 .slot .slate{
+  position:absolute;left:clamp(14px,1.4vw,20px);right:clamp(14px,1.4vw,20px);bottom:clamp(13px,1.2vw,17px);
+  display:flex;justify-content:space-between;align-items:baseline;gap:14px;
+  color:var(--w-cap);text-shadow:none;letter-spacing:0;
+}
+#s6 .slot .slate .cw{
+  font-family:"Caveat","Segoe Print",cursive;font-size:clamp(17px,1.5vw,21px);
+  line-height:1.1;text-transform:none;
+}
+#s6 .slot .slate small{ font-family:var(--mono);font-size:9px;letter-spacing:.18em;color:var(--w-capdim) }
+
+/* back into deep water, which is the thing #s7 comes up out of */
+.s6-fall{
+  height:clamp(220px,28vh,380px);
+  background:linear-gradient(180deg,
+    var(--w-ground) 0%,#DCE9E6 16%,#9DC1BA 38%,#4E837B 62%,#1E5B54 82%,#041E1D 100%);
+}
+
+@media(max-width:900px){
+  #s6 .sell{ grid-column:1 / -1;grid-row:1 }
+  #s6 .wall-side{ grid-column:1 / -1;grid-row:2;padding-top:36px }
+  #s6 .overline-rail{ top:14px }
+  #s6 .sec-head{ flex-wrap:wrap;gap:10px 16px }
+  #s6 .sec-head .rt{ margin-left:0;width:100%;text-align:left }
+  #s6 .sell,#s6 .wall-side{ margin-top:30px }
+  #s6 .big-line.wall-h{ font-size:clamp(38px,12vw,66px) }
+  #s6 .wall-row{ grid-template-columns:1fr;gap:20px }
+  #s6 .bp{ max-width:none }
+  #s6 .postit{ width:100%;max-width:300px }
+}
+
+/* aim rises out of the water */
+/* The rise used to finish at 90 percent, which put the head at 36 percent and
+   the copy at 46 percent squarely inside the transition, on a mid teal where
+   neither a light nor a dark type colour reaches 4.5 : 1. Surfacing early puts
+   the whole reading block on settled ground and leaves the dark water where it
+   belongs, at the join with #s6. */
+#s7{ background:linear-gradient(180deg,#041E1D 0%, #0A4A45 13%, #7FA9A3 25%, #CFE3E0 36%, #FAFAFA 52%, #FAFAFA 100%); }
+#s7 .sec-head .n{ color:var(--num) }
+#s7 .sec-head .lb{ color:var(--dim) }
+#s7 .is-draft{ color:var(--dim) !important;border-left-color:var(--hair-2) }
+#s7 .big-line,#s7 .pivot,#s7 p{ color:var(--ink); }
+
+footer{ background:#FAFAFA; }
+
+/* ---- the water band. full bleed, real, animated ---- */
+.waterband{
+  position:relative;z-index:3;width:100%;height:clamp(360px,48vh,600px);
+  overflow:hidden;pointer-events:none;
+  /* the seam is soaked, not stacked: the band reaches down over 05 by this
+     much and its foot fades to nothing over exactly that distance, so the
+     sea dissolves into the camouflage ground and there is no edge to draw */
+  --soak:calc(var(--sheet-lap) * 1.6);
+  margin-bottom:calc(var(--soak) * -1);
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 calc(100% - var(--soak)),transparent 100%);
+  mask-image:linear-gradient(180deg,#000 0%,#000 calc(100% - var(--soak)),transparent 100%);
+  /* the still version of the horizon: what shows before the canvas has drawn
+     and under no-motion. paper sky, a warm breath at the line, blue sea
+     going down into the dark of 05. the line sits at 45% from the top */
+  background:linear-gradient(180deg,#FAFAFA 0%,#FAFAFA 24%,#F3E4DB 44.5%,#EFD9CD 45%,#4C8FD6 45.4%,#0D52BD 56%,#061F60 82%,#0A0B0F 100%);
+}
+.waterband canvas{width:100%;height:100%;display:block}
+/* ---- marine corps horizontal lockup ---- */
+.lockup{
+  display:flex;align-items:center;gap:clamp(18px,2.4vw,32px);
+  margin:0 0 clamp(30px,4vw,52px);
+}
+/* The eagle, star and anchor rather than the seal. The lockup already
+   sets REPUBLIC OF KOREA, MARINE CORPS and 대한민국 해병대 in type, so a
+   ring carrying the same three words was saying it twice. The bare
+   insignia says the part type cannot. It also survives the inversion:
+   the seal's black ring merges into the dark ground and leaves a red
+   disc floating, where this is gold the whole way through.
+
+   Taller than it is wide and with an irregular silhouette, so it is
+   sized on height and given more of it than the disc had. */
+.lockup-seal{
+  height:clamp(84px,8.6vw,124px);width:auto;object-fit:contain;flex:0 0 auto;
+  filter:drop-shadow(0 8px 22px rgba(10,74,69,.20));
+}
+.lockup-bar{
+  width:1px;align-self:stretch;flex:0 0 auto;
+  background:linear-gradient(180deg,transparent,var(--hair-2) 22%,var(--hair-2) 78%,transparent);
+}
+.lockup-type{display:flex;flex-direction:column;gap:3px;min-width:0}
+.lockup-1{
+  font-family:var(--mono);font-size:clamp(10px,1.05vw,12.5px);
+  letter-spacing:.34em;color:var(--dim);text-transform:uppercase;
+}
+.lockup-2{
+  font-family:var(--lat);font-weight:680;
+  font-size:clamp(22px,2.9vw,40px);line-height:1;letter-spacing:-.028em;color:var(--ink);
+}
+.lockup-3{
+  font-family:var(--kor);font-size:clamp(11px,1.1vw,13px);
+  letter-spacing:.06em;color:var(--muted);margin-top:4px;
+}
+@media(max-width:820px){
+  .lockup{gap:14px}
+  .lockup-1{letter-spacing:.22em}
+}
+
+/* ---- the film ---- */
+.film{position:absolute;inset:0;overflow:hidden}
+.film video{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;will-change:opacity,transform;
+}
+.film-grade,.film-vig,.film-flash{position:absolute;inset:0;pointer-events:none}
+.film-grade{mix-blend-mode:soft-light}
+.film-vig{
+  background:radial-gradient(120% 96% at 50% 46%, rgba(0,0,0,0) 42%, rgba(0,0,0,.34) 100%);
+}
+.film-flash{background:#fff;opacity:0}
+#intro{background:#04090D}
+
+/* ---- film canvas ---- */
+.film-cv{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+/* ---- education row sweep. driven by --sweep from gsap ---- */
+.edu-row{--sweep:1;position:relative;overflow:hidden}
+.edu-row::before{
+  content:"";position:absolute;left:0;bottom:-1px;height:1px;width:100%;
+  background:linear-gradient(90deg,var(--sun),var(--hair-2));
+  transform:scaleX(var(--sweep));transform-origin:left center;
+}
+.ln{display:block;overflow:hidden}
+
+/* ================================================================
+   the stage. type that runs off the edge, and a page that inverts.
+   ================================================================ */
+.overline{
+  position:absolute;left:0;right:0;top:4%;z-index:0;pointer-events:none;
+  font-family:var(--lat);font-weight:600;
+  font-size:clamp(44px,7.2vw,104px);line-height:.9;letter-spacing:-.03em;
+  white-space:nowrap;color:transparent;
+  -webkit-text-stroke:1px var(--hair-2);
+  opacity:.62;will-change:transform;
+}
+@supports not (-webkit-text-stroke: 1px black){
+  .overline{color:var(--hair);opacity:.4}
+}
+@media(max-width:900px){
+  .overline{font-size:clamp(34px,11vw,64px);top:3%;opacity:.5}
+}
+section{isolation:isolate}
+section > .wrap,section > .grid,section > *:not(.overline):not(.overline-clip):not(.glass-cv):not(.hero-film):not(.turn-stage){position:relative;z-index:1}
+
+/* ---- inversion ---- */
+html.inverted body{background:#07100F;color:#EDF4F2}
+html.inverted .top{background:rgba(7,16,15,.74);border-bottom-color:#16302C}
+html.inverted .top .nm{color:#EDF4F2}
+html.inverted .top .set a,html.inverted .top .set button{color:#7FA8A0}
+html.inverted .overline{-webkit-text-stroke-color:#1D3A35}
+html.inverted .big-line,html.inverted .edu-name,html.inverted .pivot,
+html.inverted .hero-l,html.inverted .lead{color:#EDF4F2}
+html.inverted .cap,html.inverted .prose p,html.inverted .edu-meta{color:#93AFA9}
+html.inverted .sec-head .lb,html.inverted .edu-sub,html.inverted .eyebrow{color:#6A8A84}
+/* #2C4A45 measured 2.03 : 1 on #0B0C0C and 1.89 on the s5 ground */
+html.inverted .sec-head .n,html.inverted .edu-years{color:#6B807D}
+html.inverted .edu{border-top-color:#1D3A35}
+html.inverted .edu-row{border-bottom-color:#16302C}
+html.inverted .data{color:#54C7B4}
+html.inverted .edu-mark img{filter:brightness(1.6) saturate(.7) contrast(1.05)}
+body,.top,.big-line,.edu-name,.pivot,.hero-l,.lead,.cap,.prose p,.edu-meta,
+.sec-head .lb,.edu-sub,.eyebrow,.sec-head .n,.edu-years,.data{
+  transition:background-color .55s var(--ease),color .55s var(--ease),border-color .55s var(--ease);
+}
+
+/* ---- 07 direction ---- */
+#s7 .aim .big-line{max-width:18ch;margin-bottom:clamp(26px,3.4vw,44px)}
+#s7 .cap{max-width:34ch;font-size:clamp(15px,1.6vw,19px)}
+
+/* ---- 08 contact ---- */
+.lead-s8{
+  font-family:var(--lat);font-size:clamp(15px,1.7vw,20px);
+  color:var(--muted);margin:0 0 clamp(20px,2.6vw,34px);
+}
+.addr{
+  display:block;font-family:var(--mono);
+  font-size:clamp(22px,4.4vw,62px);line-height:1;letter-spacing:-.03em;
+  color:var(--ink);text-decoration:none;border:0;
+  transition:color .3s var(--ease);word-break:break-all;
+}
+.addr:hover{color:var(--sun)}
+.tel{
+  display:block;margin-top:clamp(12px,1.6vw,22px);
+  font-family:var(--mono);font-size:clamp(15px,2vw,26px);
+  letter-spacing:-.01em;color:var(--dim);
+}
+.note{margin:clamp(28px,3.6vw,48px) 0 0;max-width:36ch;color:var(--muted);font-size:15px}
+.links{
+  margin:clamp(34px,4.4vw,60px) 0 0;font-family:var(--mono);
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);
+  display:flex;flex-wrap:wrap;gap:0 12px;align-items:center;
+}
+.links a{color:var(--dim);text-decoration:none;border-bottom:1px solid transparent}
+.links a:hover{color:var(--sun);border-bottom-color:var(--sun)}
+.links .sep{color:var(--rule-c)}
+html.inverted .addr{color:#EDF4F2}
+html.inverted .tel,html.inverted .links a,html.inverted .note{color:#93AFA9}
+html.inverted .lead-s8{color:#7FA8A0}
+
+/* ---- the page assembles after the film. nothing is pre drawn ---- */
+html:not(.entered) .top,
+html:not(.entered) .eyebrow,
+html:not(.entered) .hero-l,
+html:not(.entered) .hero-r,
+html:not(.entered) #s1 .rule,
+html:not(.entered) #field{ visibility:hidden }
+html.entered .top,
+html.entered .eyebrow,
+html.entered .hero-l,
+html.entered .hero-r,
+html.entered #s1 .rule,
+html.entered #field{ visibility:visible }
+
+/* ---- interaction affordances ---- */
+.addr-zone{display:inline-block;padding:10px 0}
+[data-magnetic]{display:inline-block}
+[data-proximity]{will-change:transform}
+
+
+/* ---- the overline is a marquee that answers the scroll ---- */
+.overline-rail{
+  position:absolute;left:0;top:4%;z-index:0;pointer-events:none;
+  display:flex;flex-wrap:nowrap;width:max-content;
+  will-change:transform;
+}
+.overline-item{
+  flex:0 0 auto;padding-right:.28em;
+  font-family:var(--lat);font-weight:600;
+  font-size:clamp(48px,7.6vw,116px);line-height:.9;letter-spacing:-.03em;
+  white-space:nowrap;color:transparent;
+  -webkit-text-stroke:1px var(--hair-2);
+  opacity:.6;
+}
+@supports not (-webkit-text-stroke: 1px black){
+  .overline-item{color:var(--hair);opacity:.34}
+}
+html.inverted .overline-item{-webkit-text-stroke-color:#1D3A35}
+@media(max-width:900px){
+  .overline-item{font-size:clamp(34px,12vw,68px);opacity:.45}
+  .overline-rail{top:2%}
+}
+
+
+/* ---- elevation applied. the page stops being flat ---- */
+.plate .ph{ box-shadow:var(--sh-2); }
+.plate:hover .ph{ box-shadow:var(--sh-3); transition:box-shadow var(--d-3) var(--e-out); }
+.edu-row:hover{ box-shadow:var(--sh-1); }
+.lockup-seal{ filter:drop-shadow(0 6px 14px rgba(12,26,24,.16)) drop-shadow(0 18px 40px rgba(12,26,24,.12)); }
+.edu-mark img{ filter:drop-shadow(0 4px 10px rgba(12,26,24,.10)); }
+.top{ box-shadow:0 1px 0 rgba(12,26,24,.04), 0 8px 24px rgba(12,26,24,.03); }
+/* the horizon carries its own edges: paper above, olive below. no inset shadow */
+.addr{ transition:color var(--d-2) var(--e-out); }
+.wh-rule{ transition:background-color var(--d-1) var(--e-out); }
+.links a{ transition:color var(--d-1) var(--e-out), border-color var(--d-2) var(--e-out); }
+.top .set a,.top .set button{ transition:color var(--d-1) var(--e-out); }
+.top .set a:hover,.top .set button:hover,.links a:hover,.addr:hover{ color:var(--foam); }
+html:not(.inverted) .top .set a:hover,
+html:not(.inverted) .top .set button:hover,
+html:not(.inverted) .links a:hover,
+html:not(.inverted) .addr:hover{ color:var(--sun); }
+.data{ color:var(--sea-1); }
+html.inverted .data{ color:var(--foam); }
+
+/* ---- the field becomes a global layer, not a hero decoration ---- */
+#field{
+  position:fixed;inset:0;width:100vw;height:100svh;
+  z-index:0;pointer-events:none;opacity:.5;
+}
+html.no-motion #field{ display:none; }
+/* .top is deliberately absent here. It is position:fixed at line 85, and
+   listing it in this rule set it back to relative at identical
+   specificity, so the later declaration won and the header scrolled away
+   with the hero. On a ten thousand pixel page that left the language
+   toggle, the motion toggle and the CV link reachable only in the first
+   58px of the document. */
+main,footer{ position:relative;z-index:1; }
+
+/* ---- the page assembles. nothing below the hero exists until it does ---- */
+html:not(.built) body{ overflow:hidden }
+html:not(.entered) main > section:not(#s1),
+html:not(.entered) .waterband,
+html:not(.entered) footer{ visibility:hidden }
+html.entered main > section,
+html.entered .waterband,
+html.entered footer{ visibility:visible }
+
+/* ---- real footage in the private chapter ---- */
+.slot .pv{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  filter:saturate(.94) contrast(1.02);
+}
+.slot .slate{ z-index:2;color:rgba(236,248,245,.94);text-shadow:0 1px 10px rgba(0,0,0,.7) }
+.slot:has(.pv)::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(4,30,29,0) 34%,rgba(4,30,29,.42) 68%,rgba(4,30,29,.86) 100%);
+}
+
+/* ---- diagonal card deal. lenis.dev's strongest device ---- */
+.deck-wrap{ margin-top:clamp(60px,8vw,120px) }
+.deck{
+  position:relative;
+  height:calc(386px + 3 * 67px + 40px);
+  max-width:calc(386px + 3 * 135px);
+}
+.card{
+  position:absolute;top:0;left:0;
+  width:386px;height:386px;
+  padding:26px;display:flex;flex-direction:column;justify-content:space-between;
+  /* lenis.dev runs these at .82 over a 3D scene, where the value contrast
+     under the glass keeps the card behind from reading as text. Over a
+     near-white page the card behind bleeds straight through and the two
+     paragraphs collide. Depth comes from the shadow ladder instead. */
+  background:rgb(250 250 250 / .965);
+  backdrop-filter:blur(10px) saturate(1.1);
+  box-shadow:0 0 0 0.5px rgb(11 12 12 / .12),
+             0 2px 4px -2px rgb(11 12 12 / .16),
+             0 26px 60px -18px rgb(11 12 12 / .26);
+  will-change:transform,opacity;
+}
+.card-n{
+  font-family:var(--disp);font-size:34px;line-height:1;color:var(--sea-1);
+}
+.card-body{
+  font-size:17px;line-height:1.5;color:var(--ink);margin:0;letter-spacing:-.012em;
+}
+.card-lb{
+  font-family:var(--mono);font-size:10px;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--dim);
+}
+html[data-lang="ko"] .card-lb{ font-family:var(--kor);letter-spacing:.1em }
+html.inverted .card{ background:rgb(11 22 21 / .955);box-shadow:0 0 0 0.5px rgb(220 240 236 / .14), 0 26px 60px -18px rgb(0 0 0 / .62) }
+html.inverted .card-body{ color:#EDF4F2 }
+@media(max-width:900px){
+  .deck{ height:auto;max-width:none;display:grid;gap:14px }
+  .card{ position:relative;width:100%;height:auto;min-height:220px;transform:none !important }
+}
+
+
+/* ---- inverted grounds are a value ladder, not one flat black ---- */
+html.inverted body{ background:#0B0C0C }
+html.inverted #s5{ background:linear-gradient(180deg,#0B0C0C 0%,#101614 46%,#0B1413 100%) }
+html.inverted #s4{ background:linear-gradient(180deg,#0B0C0C 0%,#121212 100%) }
+/* the footer starts on the page ground so #s7's rise meets it with no seam,
+   then dives. the plunge is the gradient, not a cut between two sections. */
+/* the footer starts on the page ground so #s7's rise meets it with no seam,
+   then dives. the plunge is the gradient, not a cut between two sections. */
+html.inverted footer{ background:linear-gradient(180deg,
+  #FAFAFA 0%,#DCE9E6 4%,#7FA39D 9%,#28453F 15%,
+  #0F1C1A 26%,#0B1413 40%,#07100F 100%) }
+html.inverted #s5 .plate .ph{
+  background:linear-gradient(160deg,#12201E,#0C1817);
+  border-color:rgb(220 240 236 / .10);color:rgb(127 214 199 / .30);
+}
+html.inverted .lockup-bar{ background:linear-gradient(180deg,transparent,#24363F 22%,#24363F 78%,transparent) }
+html.inverted .overline-item{ -webkit-text-stroke-color:#22322F }
+html.inverted .waterband{ background:linear-gradient(180deg,#0B0C0C 0%,#0B0C0C 24%,#1B1412 44.5%,#221814 45%,#2F5A88 45.4%,#08337A 56%,#04143D 82%,#0A0B0F 100%) }
+body,#s4,#s5,footer{ transition:background-color 1.05s var(--e-io), background-image 1.05s var(--e-io) }
+
+
+/* ---- inverted: the lockup type has to come with the ground ---- */
+html.inverted .lockup-2{ color:#EDF4F2 }
+html.inverted .lockup-1{ color:#7FA8A0 }
+html.inverted .lockup-3{ color:#93AFA9 }
+html.inverted .plate figcaption{ color:#7FA8A0 }
+html.inverted .card-n{ color:var(--foam) }
+html.inverted .wh-lb{ color:#EDF4F2 } html.inverted .wh-rule{ background:#1D3A35 }
+html.inverted .lockup-seal{
+  filter:drop-shadow(0 6px 18px rgb(0 0 0 / .6)) drop-shadow(0 0 40px rgb(127 214 199 / .12));
+}
+
+/* ------------------------------------------------------------------
+   The return. podium.global opens on a rock and closes on the same
+   rock, at rest, and that single repeat is what makes the page feel
+   like it ended rather than stopped. Here the intro's second cut, the
+   canopy over farmland, comes back under the contact block.
+
+   Masked at the same waterline the film shader held longest (0.545),
+   so the footage arrives at the horizon rather than filling a box.
+   ------------------------------------------------------------------ */
+/* -1px: overflow:clip plus isolation:isolate rasterises the footer into
+   its own layer, and the join against #s7 shows a hairline at the
+   composite edge. one pixel of overlap removes it. */
+footer{ position:relative; overflow:clip; isolation:isolate }
+footer > .wrap,footer > .horizon{ position:relative; z-index:1 }
+
+.film-return{
+  position:absolute; inset:0; z-index:0;
+  pointer-events:none; opacity:0;
+  -webkit-mask-image:linear-gradient(180deg,transparent 2%,#000 19%,#000 78%,transparent 100%);
+  mask-image:linear-gradient(180deg,transparent 2%,#000 19%,#000 78%,transparent 100%);
+}
+.film-return-v{
+  width:100%; height:100%; display:block;
+  object-fit:cover; object-position:50% 54.5%;
+  filter:saturate(.78) contrast(1.06) brightness(1.02);
+  transform:scale(1.12);
+  will-change:transform;
+}
+/* the scrim keeps the address legible no matter which frame is up */
+.film-return::after{
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(180deg,
+    rgb(7 16 15 / .88) 0%,
+    rgb(7 16 15 / .40) 24%,
+    rgb(7 16 15 / .52) 58%,
+    rgb(7 16 15 / .90) 100%);
+}
+/* light ground: the same footage, further back, so it never fights the text */
+html:not(.inverted) .film-return::after{
+  background:linear-gradient(180deg,
+    rgb(250 250 250 / .94) 0%,
+    rgb(250 250 250 / .70) 30%,
+    rgb(250 250 250 / .68) 66%,
+    rgb(250 250 250 / .94) 100%);
+}
+
+@media (prefers-reduced-motion: reduce){
+  .film-return{ opacity:.22 }
+  .film-return-v{ transform:none }
+}
+
+/* Type over moving footage cannot use the flat-ground values: the frame
+   under it changes every 16ms, so the rail loses its contrast whenever a
+   bright field passes. Raised, and given a shadow that costs nothing on a
+   dark ground but holds when a pale one arrives. */
+html.inverted footer .sec-head .n{ color:#65837D }
+html.inverted footer .sec-head .lb{ color:#A6C4BE }
+html.inverted footer .tel,
+html.inverted footer .links a{ color:#B6CFCA }
+html.inverted footer .note{ color:#9FBBB6 }
+html.inverted footer .lead-s8{ color:#9CC4BC }
+html.inverted footer .links .sep{ color:#4E706A }
+footer .sec-head .n,footer .sec-head .lb,footer .lead-s8,
+footer .addr,footer .tel,footer .note,footer .links{
+  text-shadow:0 1px 18px rgb(4 12 11 / .55);
+}
+html:not(.inverted) footer .sec-head .n,
+html:not(.inverted) footer .sec-head .lb,
+html:not(.inverted) footer .lead-s8,
+html:not(.inverted) footer .addr,
+html:not(.inverted) footer .tel,
+html:not(.inverted) footer .note,
+html:not(.inverted) footer .links{
+  text-shadow:0 1px 16px rgb(250 250 250 / .8);
+}
+html.inverted footer .rule{
+  background:linear-gradient(90deg,transparent,rgb(127 214 199 / .5) 22%,rgb(224 102 42 / .42) 74%,transparent);
+}
+
+/* ------------------------------------------------------------------
+   The marquee rails are position:absolute with width:max-content, so
+   at 390px they run to 4158px and the whole document scrolls sideways.
+
+   overflow-x:clip, not hidden: clip does not create a scroll container,
+   so .sec-head keeps sticking to the viewport. hidden would make each
+   section its own scrollport and kill position:sticky outright.
+   ------------------------------------------------------------------ */
+.overline-clip{
+  position:absolute;inset:0;z-index:0;
+  overflow:hidden;pointer-events:none;
+}
+.overline-rail{ top:4% }
+
+/* [hidden] loses to .slot's display:flex, so it has to be said outright */
+.slot[hidden],.audio[hidden]{ display:none !important }
+/* with the football slot unarmed the row is two, and equal reads better
+   than one wide plus one narrow */
+/* two armed slots: equal halves reads better than one wide plus one narrow */
+.slots.pair .slot.wide{ grid-column:auto;aspect-ratio:16/10 }
+
+/* ---- real plates ----
+   A photograph that is worth showing is worth showing at the shape it was
+   taken in. The squad shot is 3:4 and the sky is most of what makes it, so
+   it does not get cropped into the 16:9 banner the slot was drawn for. */
+.plate .pl{
+  display:block;width:100%;height:auto;
+  aspect-ratio:3/2;object-fit:cover;
+  border:1px solid var(--hair);
+  background-size:cover;background-position:center;  /* the 20px lqip, inline */
+  box-shadow:var(--sh-2);
+  transition:box-shadow var(--d-3) var(--e-out), filter var(--d-3) var(--e-out);
+}
+.plate:hover .pl{ box-shadow:var(--sh-3) }
+
+html.inverted .plate .pl{
+  border-color:rgb(220 240 236 / .14);
+  box-shadow:0 26px 60px -18px rgb(0 0 0 / .66);
+}
+/* one live plate, so the row stops pretending to be a contact sheet */
+.plate-row.solo{ align-items:start }
+.plate-row.solo .plate{ grid-column:1 / span 2 }
+.plate[hidden]{ display:none !important }
+@media(max-width:900px){
+  .plate-row.solo .plate{ grid-column:1 / span 2 }
+}
+
+/* the glass sits over the hero and under nothing: it is on the lens,
+   so it is in front of the type, but it never takes a pointer event */
+.glass-cv{
+  position:absolute;inset:0;z-index:3;
+  pointer-events:none;
+  /* not multiply: multiplying against a near white ground throws the
+     specular away, and the specular is the half that says water */
+}
+
+/* ---- the private chapter reads on deep water ----
+   Every other section carries a number, a label, a claim and a lead.
+   This one had a bare grid of three videos and nothing to say what it
+   was, which is why it landed as an interruption rather than a chapter.
+   It sits on the darkest ground on the page, so the head cannot inherit
+   the light palette the way the others do. */
+#s6 .sec-head .n{ color:var(--w-dim) }
+#s6 .sec-head .lb{ color:var(--w-dim);border-top-color:var(--w-line) }
+#s6 .sec-head .lb::before{ background:var(--w-line) }
+#s6 .big-line{ color:var(--w-ink) }
+/* the head sits on the water, the slots start below it */
+#s6 .stage{ margin-top:clamp(48px,6vw,88px) }
+
+/* Optical, not geometric. Both marks fit inside 84px of height, but a solid
+   square monogram reads far heavier than a wide wordmark of the same area,
+   so the square one is pulled down until the two carry the same weight. */
+.edu-mark img[src$="umn.svg"]{ max-height:62px }
+@media(max-width:900px){ .edu-mark img[src$="umn.svg"]{ max-height:44px } }
+
+/* ---- Korean body ----
+   .lead, .cap, prose and the rest carried --lat, which names no Korean face
+   at all. Naming the stack is the point: the same sentence should not be set
+   in Apple SD Gothic on one reader's screen and Malgun Gothic on another's. */
+html[data-lang="ko"] .lead,
+html[data-lang="ko"] .cap,
+html[data-lang="ko"] .prose p,
+html[data-lang="ko"] .note,
+html[data-lang="ko"] .edu-meta,
+html[data-lang="ko"] .card-body,
+html[data-lang="ko"] .lead-s8,
+html[data-lang="ko"] #s7 p{
+  font-family:var(--kor);letter-spacing:-.014em;line-height:1.72;
+}
+html[data-lang="ko"] .pivot,
+html[data-lang="ko"] .edu-name{
+  font-family:var(--kor-disp);font-weight:500;letter-spacing:-.03em;
+}
+
+/* ---- draft copy ----
+   Marked so it cannot be mistaken for finished text and cannot ship by
+   accident: mono, dimmed, and sitting on a dashed rule that nothing else
+   on the page uses. */
+.is-draft{
+  font-family:var(--mono) !important;font-weight:400 !important;
+  letter-spacing:.02em !important;
+  color:var(--dim) !important;
+  border-left:1px dashed var(--hair-2);
+  padding-left:18px;
+}
+h2.pivot.is-draft{ font-size:clamp(17px,1.9vw,24px) !important;line-height:1.5 !important }
+html.inverted .is-draft{ color:#7FA8A0 !important;border-left-color:rgba(127,214,199,.28) }
+
+/* ==================================================================
+   SHEETS
+
+   Eight sections queueing straight down is a document, not a page. Each
+   section is now a sheet that overlaps the one above it, rounds its top
+   edge and casts a shadow upward, so scrolling reads as one surface
+   sliding over another rather than as a list advancing.
+
+   No overflow is set: border-radius clips the background on its own, and
+   overflow:clip here would compute the other axis to auto and stop
+   .sec-head from sticking.
+   ================================================================== */
+:root{ --sheet-r:clamp(20px,2.6vw,44px); --sheet-lap:clamp(40px,5vw,84px) }
+
+main > section:not(#s1),
+footer{
+  position:relative;
+  margin-top:calc(var(--sheet-lap) * -1);
+  border-radius:var(--sheet-r) var(--sheet-r) 0 0;
+  box-shadow:
+    0 -2px 0 rgb(255 255 255 / .55),
+    0 -18px 34px -14px rgb(4 26 24 / .16),
+    0 -46px 90px -30px rgb(4 26 24 / .22);
+}
+/* the marquee rail has to follow the corner or it squares it off again */
+main > section:not(#s1) > .overline-clip{
+  border-radius:var(--sheet-r) var(--sheet-r) 0 0;
+}
+/* the sheets pull up, so the first one under the hero needs the room back */
+#s3{ padding-top:clamp(30px,4vw,60px) }
+
+/* a sheet arriving over a dark one should not wear a white highlight */
+html.inverted main > section:not(#s1),
+html.inverted footer{
+  box-shadow:
+    0 -1px 0 rgb(220 240 236 / .10),
+    0 -18px 34px -14px rgb(0 0 0 / .5),
+    0 -52px 100px -30px rgb(0 0 0 / .55);
+}
+
+/* the sheet underneath recedes while it is being covered. opacity only,
+   so nothing is transformed and no scroll trigger measures itself. */
+@property --recede{ syntax:'<number>'; inherits:false; initial-value:0 }
+main > section,footer{ --recede:0 }
+main > section::after,
+footer::after{
+  content:'';position:absolute;inset:0;z-index:5;
+  pointer-events:none;
+  opacity:calc(var(--recede) * .34);
+  background:rgb(4 20 19 / 1);
+  border-radius:inherit;
+}
+html.no-motion main > section::after{ display:none }
+
+/* ==================================================================
+   THE HORIZONTAL BAND
+
+   One place on the page stops going down. The private chapter runs
+   sideways: the stage is tall, a pinned frame inside it holds the
+   viewport, and the track of clips is pulled across as the page
+   scrolls. Sticky rather than ScrollTrigger.pin, so no .pin-spacer
+   is injected and nothing below it is re-measured.
+
+   Only here. A mechanic used twice is a template.
+   ================================================================== */
+@media(min-width:901px){
+  #s6 .stage{ position:relative;height:280vh;margin-top:clamp(48px,6vw,88px) }
+  #s6 .stage-pin{
+    position:sticky;top:0;height:100vh;
+    display:flex;align-items:center;overflow:hidden;
+  }
+  #s6 .slots{
+    display:flex;flex-wrap:nowrap;width:max-content;
+    gap:clamp(16px,2vw,34px);padding:0 8vw;background:none;
+    will-change:transform;
+  }
+  #s6 .slot,#s6 .slot.wide{
+    flex:0 0 auto;grid-column:auto;
+    width:min(70vw,1040px);height:auto;
+  }
+  /* a rail under the track says how far there is left to go */
+  #s6 .stage-pin::after{
+    content:'';position:absolute;left:8vw;right:8vw;bottom:clamp(38px,5vh,64px);
+    height:1px;background:var(--w-line);
+  }
+  #s6 .stage-pin::before{
+    content:'';position:absolute;left:8vw;bottom:clamp(38px,5vh,64px);
+    width:calc((100% - 16vw) * var(--band, 0));height:1px;
+    background:var(--w-red);z-index:1;
+  }
+}
+
+/* ---- the service plates are a contact sheet, not a row ----
+   Four frames in three different shapes: two landscape, one square, one
+   upright. Forcing them into equal cells would crop the life out of every
+   one of them, so they keep their own proportions and sit on a twelve
+   column field at different depths. */
+@media(min-width:901px){
+  #s5 .plate-row{
+    grid-template-columns:repeat(12,1fr);
+    column-gap:clamp(18px,2.2vw,32px);row-gap:0;
+    align-items:start;
+  }
+  #s5 .plate:nth-child(4) .pl{
+    box-shadow:0 0 0 5px #150609, 0 26px 60px -18px rgb(0 0 0 / .8);
+  }
+  /* the sheet is a stack of frames, so each needs its own edge */
+  #s5 .plate .pl{ border-radius:clamp(6px,.8vw,12px) }
+  #s5 .plate-row.solo .plate{ grid-column:1 / span 6;margin-top:0 }
+}
+
+@media(max-width:900px){
+  #s5 .plate-row{ grid-template-columns:1fr;row-gap:clamp(26px,5vw,40px) }
+  #s5 .plate,#s5 .plate.w2{ grid-column:1 / -1 }
+}
+
+/* ==================================================================
+   THE HERO WINDOW
+
+   The claim was two lines of serif on off-white, which is the most
+   copied hero on the web. It also showed nothing of the person making
+   it. Both lines are now windows onto one photograph, and the rule
+   between them cuts across it: the same frame, seen from either side.
+
+   background-attachment:fixed anchors the image to the viewport, so
+   the two separate elements read as one continuous picture with no
+   javascript keeping them in register. The mask reveal slides the
+   glyphs while the picture stays put, which is why the letters look
+   like they are being cut out of it rather than fading up.
+
+   The frame is his own free fall, graded down and toward the page's
+   sea hues so a 124px Playfair hairline still reads on #FAFAFA.
+   ================================================================== */
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+  @media (min-width:901px) and (prefers-reduced-motion:no-preference){
+    html.entered .hero-l,
+    html.entered .hero-r{
+      background-image:image-set(url('/film/hero_fill.webp') type('image/webp'),
+                                 url('/film/hero_fill.jpg') type('image/jpeg'));
+      background-attachment:fixed;
+      background-size:cover;
+      background-position:center 42%;
+      -webkit-background-clip:text;background-clip:text;
+      -webkit-text-fill-color:transparent;color:transparent;
+      /* the counters of a high contrast serif close up at this size, so the
+         glyph carries its own shadow to hold its edge against the ground */
+      filter:drop-shadow(0 1px 0 rgb(11 12 12 / .16))
+             drop-shadow(0 10px 30px rgb(6 40 38 / .18));
+    }
+    /* the second line reads the same picture a stop brighter, which is what
+       separates it from the first now that they share a material */
+    html.entered .hero-r{
+      background-position:center 62%;
+      opacity:.9;
+    }
+    html.inverted .hero-l,html.inverted .hero-r{ -webkit-text-fill-color:transparent }
+  }
+}
+
+/* ==================================================================
+   THE CORPS
+
+   Corrected. After the armistice the corps standardised its unit boards,
+   drill grounds and range markers on one pairing: 진홍색 ground, 황색
+   lettering. Crimson for blood, nerve and courage. Yellow for sweat and
+   patience. A dark wine section with a gold badge on it was neither of
+   those things, it was just a dark section.
+   Source: 해병대 상징, https://www.haebyeong.com
+
+   So the chapter takes the board itself. Crimson field, yellow type, and
+   the eight corners of the cap as the frame around the map.
+   ================================================================== */
+#s5{
+  --rokmc-red:#B4121F;      /* 진홍 */
+  --rokmc-deep:#7E0A16;
+  --rokmc-gold:#F4B41A;     /* 황색 */
+  --rokmc-ink:#2A0207;
+}
+html.inverted #s5,
+#s5{
+  /* The model is the uniform, not the flag. A marine wears dark field
+     dress with one red thing on it, and that is where the colour gets its
+     force. A wall of crimson is a flag shop. So the ground stays dark and
+     slightly warm, the crimson arrives as structure, and the yellow does
+     the reading. */
+  background:
+    radial-gradient(90% 34% at 50% -2%, rgb(200 16 46 / .16) 0%, transparent 70%),
+    linear-gradient(180deg,#17110F 0%,#1C1613 42%,#141010 76%,#0D0A0A 100%);
+}
+/* the crimson runs as rules and edges, never as a field */
+html.inverted #s5 .big-line,#s5 .big-line{ color:#F6F1EA }
+html.inverted #s5 .cap,#s5 .cap{ color:#CFC3B4 }
+html.inverted #s5 .data,#s5 .data{ color:var(--rokmc-gold) }
+html.inverted #s5 .sec-head .n,#s5 .sec-head .n{ color:#9A7A52 }
+html.inverted #s5 .sec-head .lb,#s5 .sec-head .lb{
+  color:var(--rokmc-gold);border-top:2px solid var(--rokmc-red);
+}
+html.inverted #s5 .overline-item,#s5 .overline-item{ -webkit-text-stroke-color:rgb(200 16 46 / .34) }
+html.inverted #s5 .lockup-1,#s5 .lockup-1{ color:var(--rokmc-gold) }
+html.inverted #s5 .lockup-2,#s5 .lockup-2{ color:#F6F1EA }
+html.inverted #s5 .lockup-3,#s5 .lockup-3{ color:#B9AC9C }
+html.inverted #s5 .lockup-bar,#s5 .lockup-bar{
+  background:linear-gradient(180deg,transparent,var(--rokmc-red) 18%,var(--rokmc-red) 82%,transparent);width:3px;
+}
+html.inverted #s5 .lockup-seal,#s5 .lockup-seal{
+  filter:drop-shadow(0 8px 22px rgb(0 0 0 / .6)) drop-shadow(0 0 34px rgb(200 16 46 / .22));
+}
+html.inverted #s5 .plate figcaption,#s5 .plate figcaption{ color:#B9AC9C }
+html.inverted #s5 .plate .pl,#s5 .plate .pl{
+  border-color:rgb(244 180 26 / .20);
+  box-shadow:0 26px 60px -22px rgb(0 0 0 / .7);
+}
+#s5 .plate:nth-child(4) .pl{ box-shadow:0 0 0 5px #17110F, 0 26px 60px -18px rgb(0 0 0 / .8) !important }
+main > section#s5,html.inverted #s5{
+  /* the sea soaks into this ground, so the sheet edge is gone here: no lap
+     under the band, no rounded corner, no crimson rule, no upward shadow.
+     written as main > section#s5 to outweigh the sheet rule's :not(#s1) */
+  margin-top:0;
+  border-radius:0;
+  box-shadow:none !important;
+}
+
+/* ---- the name tag ----
+   Red ground, yellow lettering, the one object every marine is issued and
+   the reason the two colours mean anything. It is the section's mark, and
+   it is the only place the crimson is allowed to be a field. */
+.nametag{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:7px 20px 8px;margin:clamp(20px,2.4vw,30px) 0 clamp(6px,1vw,12px);
+  background:var(--rokmc-red);
+  border:1.5px solid var(--rokmc-gold);
+  border-radius:2px;
+  font-family:'Mujeokhaebeong',var(--kor);font-size:clamp(16px,1.6vw,20px);font-weight:700;
+  letter-spacing:.34em;text-indent:.34em;
+  color:var(--rokmc-gold);
+  box-shadow:0 10px 26px -12px rgb(0 0 0 / .7), inset 0 1px 0 rgb(255 255 255 / .12);
+  position:relative;
+}
+/* the tag is pinned on, once, when the sequence reaches it: a single bloom
+   of crimson and a gold ring that opens and goes. the ring is a pseudo
+   element so nothing in the layout moves, and it is removed by its own
+   forwards fill rather than by script. */
+.nametag::after{
+  content:'';position:absolute;inset:-5px;border-radius:4px;pointer-events:none;opacity:0;
+}
+/* The bloom was 0.74s and started from nothing, which on a red tag against a
+   dark ground is a flicker rather than an event. It is longer now, it starts
+   already lit, and the tag itself flashes with it. Brightness rather than a
+   transform, because the ceremony leaves an inline transform on this element
+   and a keyframe on the same property would fight it. */
+.nametag.pinned{ animation:tagflash 1.05s cubic-bezier(.16,1,.3,1) }
+@keyframes tagflash{
+  0%  { filter:brightness(1) }
+  16% { filter:brightness(1.62) }
+  100%{ filter:brightness(1) }
+}
+.nametag.pinned::after{ animation:tagbloom 1.35s cubic-bezier(.16,1,.3,1) forwards }
+@keyframes tagbloom{
+  0%  { opacity:1;box-shadow:0 0 10px 2px rgb(200 16 46 / .8), 0 0 0 0 rgb(244 180 26 / .95) }
+  26% { opacity:1;box-shadow:0 0 42px 15px rgb(200 16 46 / .78), 0 0 0 6px rgb(244 180 26 / .7) }
+  100%{ opacity:0;box-shadow:0 0 96px 48px rgb(200 16 46 / 0), 0 0 0 24px rgb(244 180 26 / 0) }
+}
+html.no-motion .nametag.pinned::after,html.no-motion .nametag.pinned{ animation:none }
+
+/* ---- where the island actually is ----
+   The island on its own said nothing. The frame now carries the northwest
+   coast, the land border as a dashed line, and the two shores, so the
+   reading is the one that matters: it sits under the northern coast, a
+   long way from Incheon. Coastline and boundary from OpenStreetMap. */
+/* the rail cannot stick here: the locator sits under it in the same two
+   columns, so a sticky head slides straight down onto its caption */
+/* three columns for the head and its twin alike, so the two rules are one
+   length and the pair frames the opener */
+#s5 .sec-head{ grid-row:1;position:static;grid-column:1 / span 3 }
+
+/* ==================================================================
+   05, ONE PAGE
+
+   The section is one object on the twelve column grid.
+
+   Top, a pair: the section head and a twin built from the same markup,
+   so the rule is the same length and the label sits on the same line.
+
+   Then the opener on the axis: the seal above its type so the lockup has
+   no left and no right, the line in two tiers, and the class patch worn
+   with the tag. One spacing scale, 8 16 24 40.
+
+   Then six cells of one size and one mount, three by two. Photographs at
+   the corners, the map and the record down the centre column, so the
+   axis the opener set is carried down the middle and the balance is a
+   property of the grid rather than something adjusted.
+   ================================================================== */
+/* 무적해병체. The corps' own typeface, cut for the 70th anniversary in
+   2019, licensed for websites and embedding. Hangul, Latin and figures;
+   no hanja, so 兵 and 期 keep the serif. */
+@font-face{ font-family:'Mujeokhaebeong';
+  src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2502-1@1.0/MarinesBold.woff2') format('woff2');
+  font-weight:700;font-display:swap }
+@font-face{ font-family:'Mujeokhaebeong';
+  src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2502-1@1.0/MarinesRegular.woff2') format('woff2');
+  font-weight:400;font-display:swap }
+
+#s5{ --s1:8px; --s2:16px; --s3:24px; --s4:40px; --gut:clamp(18px,2.2vw,32px) }
+#s5 .wrap.grid{ grid-template-rows:auto auto;row-gap:0;align-items:start }
+#s5 .sec-head.twin{ grid-column:10 / span 3;grid-row:1;text-align:right }
+#s5 .sec-head.twin .n{ color:#9A7A52 }
+
+/* ---- the opener ---- */
+#s5 .build{
+  grid-column:1 / -1;grid-row:2;
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  margin-top:clamp(28px,3.4vw,52px);
+}
+#s5 .build .lockup{ flex-direction:column;align-items:center;gap:var(--s2);margin:0 0 var(--s3) }
+#s5 .build .lockup-seal{ width:clamp(56px,4.8vw,70px);height:auto }
+#s5 .build .lockup-bar{ width:34px;height:2px;align-self:center;
+  background:var(--rokmc-red);transform-origin:center }
+#s5 .build .lockup-type{ align-items:center;text-align:center;gap:4px }
+
+/* the line in two tiers. one size for both lines gave a wedge with a full
+   stop hanging off it and nothing to say which half was the fact. */
+#s5 .build .big-line{ display:flex;flex-direction:column;align-items:center;text-align:center;
+  max-width:none;margin:0 0 var(--s2);line-height:1 }
+#s5 .build .big-line [data-en],#s5 .build .big-line [data-ko]{ display:flex;flex-direction:column;align-items:center }
+html[data-lang="ko"] #s5 .build .big-line [data-en]{ display:none }
+html[data-lang="en"] #s5 .build .big-line [data-ko]{ display:none }
+#s5 .build .big-line .t1{
+  font-family:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;font-weight:700;
+  font-size:clamp(42px,4.8vw,66px);line-height:.98;letter-spacing:-.028em;color:#F6F1EA;
+  font-variation-settings:'opsz' 96,'wdth' 86;font-kerning:normal;
+}
+#s5 .build .big-line .t2{
+  font-family:var(--disp);font-style:italic;font-weight:400;
+  font-size:clamp(20px,2.3vw,32px);line-height:1.1;letter-spacing:.005em;color:#CFC3B4;margin-top:.34em;
+}
+#s5 .build .big-line [data-ko] .t1{ font-family:var(--kor-disp);font-weight:700;letter-spacing:-.03em;
+  font-variation-settings:normal;line-height:1.08 }
+#s5 .build .big-line [data-ko] .t2{ font-family:var(--kor-disp);font-style:normal;font-weight:500;
+  letter-spacing:.06em;margin:0 0 .5em;font-size:clamp(15px,1.5vw,20px);color:#CFC3B4 }
+
+/* ---- the class patch and the tag, a pair ----
+   the same height, border, corner and highlight as the tag, but cut open:
+   the crimson is a field in one place only. hanja a step larger than the
+   figures, the figures in the corps' face, one gap either side of them. */
+#s5 .build .idline{ display:inline-flex;align-items:stretch;gap:10px;margin:0 }
+#s5 .build .idline > *{ min-width:134px;box-sizing:border-box;justify-content:center }
+#s5 .build .klasstag{
+  display:inline-flex;align-items:center;justify-content:center;gap:.2em;
+  padding:7px 16px 8px;border:1.5px solid var(--rokmc-gold);border-radius:2px;
+  background:rgb(12 14 9 / .35);
+  box-shadow:0 10px 26px -12px rgb(0 0 0 / .7),inset 0 1px 0 rgb(244 180 26 / .18);
+  font-family:"Noto Serif KR",serif;font-weight:700;color:var(--rokmc-gold);
+  font-size:clamp(14px,1.35vw,17px);letter-spacing:.14em;white-space:nowrap;font-variant-numeric:tabular-nums;
+}
+#s5 .build .klasstag .h{ font-size:1.14em;line-height:1;margin:0 }
+#s5 .build .klasstag .n{ font-family:'Mujeokhaebeong',var(--mono);font-weight:700;letter-spacing:.04em;line-height:1;margin:0;font-size:.98em }
+#s5 .build .nametag{ margin:0;align-self:stretch;display:inline-flex;align-items:center }
+
+/* ---- the six cells ---- */
+#s5 .m6{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gut);
+  align-items:stretch;margin-top:clamp(34px,4vw,56px);
+}
+#s5 .m6 .cell{
+  position:relative;display:flex;flex-direction:column;margin:0;
+  padding:clamp(9px,.9vw,14px);
+  background:rgb(12 14 9 / .72);
+  box-shadow:inset 0 0 0 1px rgb(232 214 168 / .16),0 30px 66px -26px rgb(0 0 0 / .8);
+}
+#s5 .m6 .cell::before,#s5 .m6 .cell::after{ content:'';position:absolute;pointer-events:none;width:16px;height:16px }
+#s5 .m6 .cell::before{ top:4px;left:4px;border-top:1.5px solid var(--rokmc-gold);border-left:1.5px solid var(--rokmc-gold) }
+#s5 .m6 .cell::after{ bottom:4px;right:4px;border-bottom:1.5px solid var(--rokmc-gold);border-right:1.5px solid var(--rokmc-gold) }
+/* the picture's own mount is off; the cell carries it now */
+#s5 .m6 .plate picture{ padding:0;background:none;box-shadow:none }
+#s5 .m6 .plate picture::before,#s5 .m6 .plate picture::after{ display:none }
+/* one window for all six, so every row is one height and every edge is on
+   the grid. the upright frame is cropped to it, sat high so the faces stay */
+#s5 .m6 .win{ aspect-ratio:4/3;overflow:hidden;position:relative;background:#0B0D08 }
+#s5 .m6 .plate .pl{ width:100%;height:100%;object-fit:cover;aspect-ratio:auto !important;
+  border:0 !important;border-radius:0 !important;box-shadow:none !important }
+#s5 .m6 .plate.up .pl{ object-position:center 42% }
+/* one caption bar on all six */
+#s5 .m6 figcaption,#s5 .m6 .cbar{
+  display:flex;align-items:center;gap:10px;margin:12px 0 0;padding-top:9px;
+  border-top:1px solid rgb(232 214 168 / .16);
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:#B9AC9C;font-variant-numeric:tabular-nums;
+}
+#s5 .m6 figcaption::before,#s5 .m6 .cbar::before{ content:'';flex:0 0 auto;width:14px;height:2px;background:var(--rokmc-red) }
+#s5 .m6 .pl-n{ color:var(--rokmc-gold);letter-spacing:.18em }
+#s5 .m6 .pl-t{ color:#CFC3B4 }
+#s5 .m6 .pl-d{ margin-left:auto;color:#8E8271;letter-spacing:.14em }
+html[data-lang="ko"] #s5 .m6 figcaption,html[data-lang="ko"] #s5 .m6 .cbar{ font-family:var(--kor);text-transform:none;letter-spacing:.04em;font-size:10.5px }
+/* the map cell: the octagon centred in the same window, on a transparent
+   ground so it reads as a shape and not a rectangle with red edges */
+#s5 .m6 .cell.map .win{ display:grid;place-items:center;background:transparent }
+#s5 .m6 .cell.map .locator-frame{ height:100%;aspect-ratio:1.05;width:auto }
+/* the record cell: the caption at the head, the service lines at the foot */
+#s5 .m6 .cell.rec .win{ aspect-ratio:auto;flex:1;display:flex;flex-direction:column;justify-content:space-between;
+  gap:var(--s2);background:none;padding:6px 4px 2px }
+#s5 .m6 .cell.rec .cap{ margin:0;font-size:15px;line-height:1.62;color:#CFC3B4;max-width:none }
+html[data-lang="ko"] #s5 .m6 .cell.rec .cap{ font-family:var(--kor);font-size:13.5px;line-height:1.78 }
+#s5 .m6 .cell.rec .lines{ display:flex;flex-direction:column;gap:var(--s1) }
+#s5 .m6 .cell.rec .data{ margin:0;color:var(--rokmc-gold);font-family:var(--mono);font-size:12.5px;line-height:1.6;letter-spacing:.01em }
+html[data-lang="ko"] #s5 .m6 .cell.rec .data{ font-family:var(--kor);font-size:12px }
+
+@media(max-width:900px){
+  #s5 .sec-head.twin{ grid-column:1 / -1;grid-row:3;text-align:left;margin-top:14px }
+  #s5 .build{ grid-row:2 }
+  #s5 .build .idline{ flex-wrap:wrap;justify-content:center }
+  #s5 .m6{ grid-template-columns:1fr }
+  /* on a phone the centre column reads first: the map, then the record */
+  #s5 .m6 .cell.map{ order:-2 } #s5 .m6 .cell.rec{ order:-1 }
+}
+
+
+.locator-frame{
+  position:relative;
+  padding:clamp(14px,1.6vw,22px);
+  background:rgb(12 14 9 / .80);
+  clip-path:polygon(25% 0%,75% 0%,100% 25%,100% 75%,75% 100%,25% 100%,0% 75%,0% 25%);
+  aspect-ratio:1.05;
+  display:grid;place-items:center;
+}
+.locator-frame::before{
+  content:'';position:absolute;inset:0;
+  background:rgb(200 16 46 / .7);
+  clip-path:polygon(25% 0%,75% 0%,100% 25%,100% 75%,75% 100%,25% 100%,0% 75%,0% 25%);
+  -webkit-mask:linear-gradient(#000,#000) content-box,linear-gradient(#000,#000);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  padding:1.5px;
+}
+.loc-wide{ width:100%;height:auto;display:block }
+.loc-n,.loc-lbl{
+  position:absolute;font-family:var(--mono);font-size:8.5px;letter-spacing:.2em;
+  color:rgb(233 220 200 / .78);pointer-events:none;
+}
+.loc-n{ top:11%;right:15%;font-size:10px;letter-spacing:.1em }
+.loc-n::after{ content:'';display:block;width:1px;height:12px;background:currentColor;margin:2px auto 0 }
+.loc-lbl-kp{ top:26%;left:46% }
+.loc-lbl-kr{ bottom:24%;right:20% }
+.locator-cap{ display:flex;flex-direction:column;gap:5px;margin-top:14px;font-family:var(--mono) }
+.loc-co{ font-size:10px;letter-spacing:.16em;color:var(--rokmc-gold) }
+.loc-nm{ font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:#D8CBBA }
+html[data-lang="ko"] .loc-nm{ font-family:var(--kor);letter-spacing:.08em }
+.loc-note{ font-size:9.5px;line-height:1.7;letter-spacing:.04em;color:rgb(216 203 186 / .7);max-width:22ch }
+html[data-lang="ko"] .loc-note{ font-family:var(--kor);font-size:10.5px }
+.loc-src{ font-size:8px;letter-spacing:.08em;color:rgb(216 203 186 / .34) }
+
+/* ---- what the two colours mean ---- */
+.creed{
+  display:flex;align-items:flex-start;gap:14px;
+  margin:clamp(26px,3.4vw,42px) 0 0;max-width:62ch;
+  font-family:var(--mono);font-size:11px;line-height:1.85;letter-spacing:.04em;
+  color:#C3B6A5;
+}
+html[data-lang="ko"] .creed{ font-family:var(--kor);letter-spacing:0;font-size:12.5px }
+.creed-sws{ flex:0 0 auto;display:flex;gap:6px;margin-top:.55em }
+.creed-sws i{ width:9px;height:9px;transform:rotate(45deg);display:block }
+.creed-red{ background:#E8263A;box-shadow:0 0 0 1px rgb(255 255 255 / .3) }
+.creed-gold{ background:var(--rokmc-gold) }
+
+@media(max-width:900px){
+  .locator{ grid-column:1 / -1;max-width:230px }
+  .creed{ gap:10px;font-size:10.5px }
+}
+
+/* ---- both rows carry a period, not one loose year ---- */
+.edu-years{ display:flex;flex-direction:column;align-items:flex-end;gap:2px;line-height:1.25 }
+.ey-a{ opacity:.5 }
+.ey-b::before{ content:'';display:block;width:14px;height:1px;background:currentColor;opacity:.4;margin:3px 0 3px auto }
+
+/* ==================================================================
+   THE SCHOOLS, IN SPACE
+
+   The list was flat, which is the one thing a page about two places on
+   opposite sides of the world should not be. The rows now sit on a
+   perspective and lean toward the pointer, and the marks stand off the
+   surface on their own z. CSS 3D, so it costs a compositor layer rather
+   than a WebGL context, and it degrades to a flat list under no-motion.
+   ================================================================== */
+@media(min-width:901px) and (prefers-reduced-motion:no-preference){
+  .edu{ perspective:1400px;perspective-origin:50% 40% }
+  .edu-row{
+    transform-style:preserve-3d;
+    transition:transform .55s var(--e-out), box-shadow .55s var(--e-out);
+    will-change:transform;
+  }
+  .edu-row:hover{
+    transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateZ(26px);
+    box-shadow:0 40px 90px -40px rgb(6 40 38 / .34);
+  }
+  .edu-mark{ transform-style:preserve-3d }
+  .edu-mark img{
+    transition:transform .55s var(--e-out), filter .55s var(--e-out);
+    transform:translateZ(0);
+  }
+  .edu-row:hover .edu-mark img{
+    transform:translateZ(58px) scale(1.06);
+    filter:brightness(1.9) saturate(.85) drop-shadow(0 18px 26px rgb(6 40 38 / .34));
+  }
+  .edu-row:hover .edu-name{ transform:translateZ(30px) }
+  .edu-row:hover .edu-meta{ transform:translateZ(16px) }
+  .edu-name,.edu-meta{ transition:transform .55s var(--e-out) }
+  .edu-row:hover .edu-years{ transform:translateZ(22px) }
+  .edu-years{ transition:transform .55s var(--e-out) }
+}
+
+/* the address block sits on whatever frame is playing, so it carries its
+   own ground rather than trusting the scrim underneath */
+footer .sell{ position:relative }
+footer .sell::before{
+  /* it has to die out before it reaches its own edge, or the footing reads
+     as a panel dropped on the photograph */
+  content:'';position:absolute;inset:-60px -220px -60px -140px;z-index:-1;
+  background:radial-gradient(76% 78% at 42% 50%,
+    rgb(5 14 13 / .74) 0%, rgb(5 14 13 / .46) 44%, rgb(5 14 13 / .16) 72%, transparent 92%);
+}
+
+/* ==================================================================
+   THE FRAME'S INSTRUMENTS
+
+   The footage on its own was a clip in an empty frame. What fills it is
+   not decoration but the frame's own readout: corner brackets that say
+   this is a viewfinder, a timecode and a gauge that are true by
+   construction because they are properties of the film, and two slugs.
+   No altitude, no speed, nothing the jump cannot stand behind.
+   ================================================================== */
+.film-type{
+  position:absolute;inset:0;z-index:3;pointer-events:none;
+  font-family:var(--mono);color:#FFFFFF;
+  text-shadow:0 1px 2px rgb(0 0 0 / .55), 0 2px 22px rgb(0 0 0 / .45);
+}
+/* white furniture over a bright sky is invisible furniture. the two bands
+   are the same thing a camera monitor does, and they are what lets the
+   readout hold whatever frame is underneath it. */
+.film-type::before,.film-type::after{
+  content:'';position:absolute;left:0;right:0;height:23vh;pointer-events:none;
+}
+.film-type::before{ top:0;background:linear-gradient(180deg,rgb(4 9 13 / .62),transparent) }
+.film-type::after{ bottom:0;background:linear-gradient(0deg,rgb(4 9 13 / .68),transparent) }
+.film-type > *{ opacity:0;position:absolute;z-index:1 }
+
+/* corner brackets, a viewfinder rather than a border */
+.ft-corner{
+  width:26px;height:26px;
+  filter:drop-shadow(0 1px 3px rgb(0 0 0 / .6));
+  border:0 solid rgb(255 255 255 / .92);
+}
+.ft-tl{ top:clamp(22px,3.4vh,44px);left:clamp(22px,3vw,52px);border-top-width:1.5px;border-left-width:1.5px }
+.ft-tr{ top:clamp(22px,3.4vh,44px);right:clamp(22px,3vw,52px);border-top-width:1.5px;border-right-width:1.5px }
+.ft-bl{ bottom:clamp(22px,3.4vh,44px);left:clamp(22px,3vw,52px);border-bottom-width:1.5px;border-left-width:1.5px }
+.ft-br{ bottom:clamp(22px,3.4vh,44px);right:clamp(22px,3vw,52px);border-bottom-width:1.5px;border-right-width:1.5px }
+
+.ft-slug{
+  top:clamp(26px,3.8vh,50px);left:clamp(58px,6vw,92px);
+  font-size:11px;letter-spacing:.42em;
+}
+/* the readouts sit as value over label, the way an instrument is read */
+.ft-reel,.ft-meta{ display:flex;flex-direction:column;gap:3px }
+.ft-reel{ top:clamp(26px,3.8vh,50px);right:clamp(58px,6vw,92px);align-items:flex-end }
+.ft-meta{ bottom:clamp(58px,7vh,96px);left:clamp(58px,6vw,92px) }
+.film-type b{ font-weight:400;font-size:12.5px;letter-spacing:.16em;font-variant-numeric:tabular-nums }
+.film-type em{ font-style:normal;font-size:8px;letter-spacing:.3em;color:rgb(255 255 255 / .66) }
+.ft-reel em{ text-align:right }
+
+/* the gauge is the film's own progress, nothing else */
+.ft-gauge{
+  left:clamp(58px,6vw,92px);right:clamp(58px,6vw,92px);
+  bottom:clamp(30px,4vh,58px);height:1px;background:rgb(246 241 234 / .22);
+}
+.ft-gauge i{ display:block;height:100%;width:0;background:#F6F1EA }
+
+/* a centre cross, the smallest possible framing mark */
+.ft-cross{
+  left:50%;top:50%;width:16px;height:16px;
+  transform:translate(-50%,-50%);
+  background:
+    linear-gradient(90deg,transparent 45%,rgb(246 241 234 / .55) 45% 55%,transparent 55%),
+    linear-gradient(180deg,transparent 45%,rgb(246 241 234 / .55) 45% 55%,transparent 55%);
+}
+@media(max-width:900px){
+  .ft-slug{ font-size:9.5px;letter-spacing:.3em }
+  .film-type b{ font-size:11px }
+  .ft-corner{ width:18px;height:18px }
+}
+
+/* ==================================================================
+   THE HERO FOOT
+
+   Two sentences and air is a poster, not a page. The foot gives the
+   claim something to stand on: where he is, what the field is, which
+   languages, and an index of everything under it that doubles as the
+   only navigation the page has.
+   ================================================================== */
+.hero-foot{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  gap:clamp(30px,5vw,90px);flex-wrap:wrap;
+  margin-top:clamp(46px,6vw,96px);
+}
+.hero-meta{ display:flex;gap:clamp(24px,3.4vw,58px);margin:0;flex-wrap:wrap }
+.hero-meta div{ display:flex;flex-direction:column;gap:5px }
+.hero-meta dt{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--num);
+}
+.hero-meta dd{ margin:0;font-family:var(--lat);font-size:14px;color:var(--ink);letter-spacing:-.01em }
+html[data-lang="ko"] .hero-meta dt{ font-family:var(--kor);letter-spacing:.1em }
+html[data-lang="ko"] .hero-meta dd{ font-family:var(--kor) }
+
+.hero-index{ display:flex;flex-direction:column;gap:1px;min-width:min(280px,42vw) }
+.hero-index a{
+  display:flex;align-items:baseline;gap:14px;
+  padding:7px 0;text-decoration:none;
+  border-bottom:1px solid var(--hair);
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dim);
+  transition:color var(--d-2) var(--e-out), padding-left var(--d-2) var(--e-out),
+             border-color var(--d-2) var(--e-out);
+}
+.hero-index a i{ font-style:normal;color:var(--num);font-size:10px }
+.hero-index a:hover{ color:var(--ink);padding-left:12px;border-bottom-color:var(--ink) }
+.hero-index a:hover i{ color:var(--sun) }
+html[data-lang="ko"] .hero-index a{ font-family:var(--kor);letter-spacing:.06em }
+
+@media(max-width:900px){
+  .hero-foot{ flex-direction:column;align-items:stretch;gap:32px;margin-top:38px }
+  .hero-meta{ gap:20px 30px }
+  .hero-index{ min-width:0 }
+}
+html:not(.entered) .hero-foot{ visibility:hidden }
+
+/* ==================================================================
+   THE PATTERN
+
+   A coordinate grid on aged paper is a texture, not a corps. What reads
+   as this one at a glance is the digital pattern, so the ground wears it.
+
+   The tile is generated rather than lifted: coherent noise smoothed three
+   times, quantised to four values, drawn as six pixel cells, seeded on
+   2021-06-01 so it is reproducible. 432px, 8KB, and it tiles.
+
+   It sits at low opacity over the olive base. A camouflage you can read
+   text on is doing its job here and failing at its actual one, which is
+   the correct trade for a web page.
+   ================================================================== */
+#s5::before{
+  content:'';position:absolute;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    image-set(url('/marks/rokmc-camo.webp') type('image/webp'),
+              url('/marks/rokmc-camo.png') type('image/png'));
+  background-size:clamp(260px,22vw,380px);
+  background-repeat:repeat;
+  /* .30 buried the marquee and the map. a pattern that fights the reading
+     is doing its real job and failing this one. */
+  opacity:.17;
+  border-radius:inherit;
+}
+/* handled edges, and the crimson breathing in from the top seam */
+#s5::marker{ content:'' }
+html.inverted #s5,#s5{
+  background:
+    linear-gradient(90deg, transparent, rgb(200 16 46 / .34) 30%, rgb(200 16 46 / .34) 70%, transparent) 0 calc(var(--sheet-lap) * 1.6) / 100% 1px no-repeat,
+    radial-gradient(78% 30% at 50% -2%, rgb(200 16 46 / .22) 0%, transparent 72%),
+    radial-gradient(120% 92% at 50% 46%, transparent 44%, rgb(6 8 4 / .62) 100%),
+    linear-gradient(180deg,#1B1C14 0%,#22241A 40%,#191A12 76%,#101109 100%);
+}
+
+/* the marquee stays behind the ground texture, everything else in front */
+#s5 > *:not(.overline-clip){ position:relative;z-index:1 }
+main > section#s5 > .overline-clip{ z-index:0;border-radius:0 }
+
+/* the tape-strip edge went with the soak seam: the sea dissolves into this
+   ground and there is no edge to draw. kept as a marker so nothing else
+   brings a shadow back here */
+main > section#s5,html.inverted #s5{ box-shadow:none !important }
+
+/* ==================================================================
+   FIELD FRAMES
+
+   The photographs were butting straight onto the ground with a caption
+   underneath, which is why they landed abruptly. Each one is now mounted:
+   a mat, a hairline, crosshair corners at the four corners, and a strip
+   under the image carrying the caption against a crimson tick.
+   ================================================================== */
+#s5 .plate{ position:relative }
+#s5 .plate picture{
+  display:block;position:relative;
+  padding:clamp(9px,.9vw,14px);
+  background:rgb(12 14 9 / .72);
+  box-shadow:inset 0 0 0 1px rgb(232 214 168 / .16),
+             0 30px 66px -26px rgb(0 0 0 / .8);
+}
+#s5 .plate .pl{ border:0 !important;border-radius:0 !important;box-shadow:none !important }
+/* crosshair corners, drawn with two gradients rather than four elements */
+#s5 .plate picture::before,
+#s5 .plate picture::after{
+  content:'';position:absolute;pointer-events:none;
+  width:16px;height:16px;
+}
+#s5 .plate picture::before{
+  top:4px;left:4px;
+  border-top:1.5px solid var(--rokmc-gold);border-left:1.5px solid var(--rokmc-gold);
+}
+#s5 .plate picture::after{
+  bottom:4px;right:4px;
+  border-bottom:1.5px solid var(--rokmc-gold);border-right:1.5px solid var(--rokmc-gold);
+}
+/* ---- one caption system, applied the same way four times ----
+   The rule for a set like this is to decide the caption system once and
+   never vary it, so the reader always knows where to look. Each plate now
+   carries the same three fields in the same order under the same hairline:
+   the index, what it is, when it was. The crimson tick stays as the mark
+   that opens the row. */
+#s5 .plate figcaption{
+  display:flex;align-items:center;gap:10px;
+  margin-top:12px;padding-top:9px;
+  border-top:1px solid rgb(232 214 168 / .16);
+  font-variant-numeric:tabular-nums;
+}
+#s5 .plate figcaption::before{
+  content:'';flex:0 0 auto;width:14px;height:2px;background:var(--rokmc-red);
+}
+#s5 .plate .pl-n{ color:var(--rokmc-gold);letter-spacing:.18em }
+#s5 .plate .pl-t{ color:#CFC3B4 }
+#s5 .plate .pl-d{ margin-left:auto;color:#8E8271;letter-spacing:.14em }
+#s5 .plate:nth-child(4) picture{ background:rgb(16 18 11 / .94) }
+#s5 .plate:nth-child(4) .pl{ box-shadow:none !important }
+
+/* ==================================================================
+   THE HERO IS THE OBJECT
+
+   The reference reel does one thing: a single subject, full bleed, moved
+   frame by frame by the scroll, with the type small and at the edges. We
+   had it the other way round, type large with footage behind as a mood.
+
+   So the fall runs the hero. The encode is all keyframe, which is why a
+   scroll can land on any frame of it without waiting for a group of
+   pictures to resolve, and why it is 2MB for 78 frames rather than 300KB.
+   ================================================================== */
+.hero-film{
+  /* the first screen only. cover on the full 1470px section would scale the
+     frame to 2600px wide and crop the jump out of its own shot. */
+  position:absolute;top:0;left:0;right:0;height:100svh;z-index:0;
+  overflow:hidden;border-radius:inherit;
+}
+.hero-film video{
+  width:100%;height:100%;object-fit:cover;display:block;
+  filter:saturate(.86) contrast(1.04);
+  will-change:transform;
+}
+/* the claim has to survive whatever frame is under it */
+.hero-film::after{
+  content:'';position:absolute;inset:0;
+  /* the claim sits in the lower half, so the scrim is weighted there, and
+     it closes on the page ground so the film has no bottom edge */
+  background:
+    linear-gradient(180deg, rgb(250 250 250 / .34) 0%, rgb(250 250 250 / .30) 18%,
+                    rgb(250 250 250 / .74) 42%, rgb(250 250 250 / .80) 66%,
+                    rgb(250 250 250 / .94) 86%, rgb(250 250 250 / 1) 100%);
+}
+html.has-hero-film #field{ opacity:.22 }
+
+/* with a picture under it the window effect is redundant and fights the
+   frame, so the claim goes back to solid ink over the scrim */
+@supports ((-webkit-background-clip:text) or (background-clip:text)){
+  @media (min-width:901px) and (prefers-reduced-motion:no-preference){
+    html.has-hero-film.entered .hero-l,
+    html.has-hero-film.entered .hero-r{
+      background-image:none;-webkit-text-fill-color:currentColor;color:var(--ink);
+      filter:none;
+    }
+    html.has-hero-film.entered .hero-r{ color:var(--muted);opacity:1 }
+  }
+}
+
+/* the trailer keeps a rule where the two big words used to shout */
+.ft-rule{
+  align-self:center;justify-self:center;
+  width:min(46vw,520px);height:1px;
+  background:linear-gradient(90deg,transparent,rgb(246 241 234 / .85),transparent);
+}
+
+/* over a picture the hero furniture cannot use page greys */
+html.has-hero-film .eyebrow{ color:var(--ink);opacity:.72 }
+html.has-hero-film .hero-r{ color:#3D4644 }
+html.has-hero-film .hero-meta dt{ color:#4E5654 }
+html.has-hero-film .hero-meta dd{ color:var(--ink);font-weight:500 }
+html.has-hero-film .hero-index a{ color:#39423F;border-bottom-color:rgb(11 12 12 / .18) }
+html.has-hero-film .hero-index a i{ color:#6B7370 }
+html.has-hero-film .hero-index a:hover{ color:var(--ink);border-bottom-color:var(--ink) }
+
+/* ==================================================================
+   03 · THE TURN
+
+   One box, one line count, one baseline grid, two materials. The eye
+   tracks it as a single object because nothing about its geometry
+   changes: only the glyphs, the face and the accent do.
+
+   Real characters, not marks. Measured on the reference sites, the
+   floor for "that reads as code" is about 6 to 7px and it is
+   comfortable at 8. A rectangle of the same pixels carries none of the
+   counters, ascenders or punctuation that identify the material, which
+   is why two fields of rectangles came out indistinguishable from each
+   other and the section could not be read at all.
+   ================================================================== */
+#s3{ padding:0 }
+/* 400 rather than 220. The section used to hold one change, source into
+   clause, and 220vh was enough for it. It now holds four beats: the corridor,
+   then three words arriving with a hold between each. A hold that is too
+   short does not read as a pause, it reads as a stutter, and at 220vh every
+   beat got about one flick of a trackpad. */
+.turn-stage{ position:relative;height:400vh;z-index:1 }
+@media(max-width:900px){ .turn-stage{ height:340vh } }
+
+.turn-frame{
+  position:sticky;top:0;height:100svh;
+  overflow:hidden;border-radius:inherit;z-index:1;
+}
+#corridor{ display:block;width:100%;height:100%;background:var(--abyss) }
+/* Camera monitor scrims. The corridor's mid tones sit exactly where the type
+   sits, and a serif display line at 50px over a moving grey field is the one
+   thing this page cannot afford to make anyone squint at. Both bands fade
+   into the page ground rather than to a tint, so the frame still reads as one
+   surface. They live on the frame, not on the type, so the canvas is what
+   gets veiled and the words are never given a box. */
+.turn-frame::before,.turn-frame::after{
+  content:'';position:absolute;left:0;right:0;pointer-events:none;z-index:1;
+}
+/* The scrims were the brightness. Between them they washed more than half
+   the frame toward paper. The top one keeps the head and the chips legible
+   over the corridor and stays, thinner. The bottom one existed to keep the
+   band legible over the corridor, and the band no longer appears while the
+   corridor is drawn, so it is a sliver now and the tunnel is seen. */
+.turn-frame::before{ top:0;height:20vh;
+  background:linear-gradient(180deg,var(--abyss) 6%,rgba(250,250,250,.56) 44%,transparent) }
+.turn-frame::after{ bottom:0;height:14vh;
+  background:linear-gradient(0deg,rgba(250,250,250,.42) 0%,transparent) }
+.dc-title{ font-family:var(--mono) !important;font-size:9.5px;letter-spacing:.2em;color:var(--dim) }
+html[data-lang="ko"] .dc-title{ font-family:var(--kor) !important;letter-spacing:.06em }
+.dc-rule{ border-top:1px solid var(--hair-2);margin-top:6px }
+.dc-sig{ display:flex;gap:26px;padding-top:11px }
+.dc-sig .sg{ flex:1;border-bottom:1px solid var(--ink);height:1px }
+.dc-sigl{ display:flex;gap:26px;font-family:var(--mono) !important;font-size:8.5px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--dim) }
+html[data-lang="ko"] .dc-sigl{ font-family:var(--kor) !important;letter-spacing:.04em;text-transform:none }
+.dc-sigl .sg{ flex:1 }
+
+/* ---- the state label, decoded the way vizcom decodes its own ---- */
+.turn-state{
+  grid-column:11 / span 2;grid-row:1;justify-self:end;margin:0;
+  display:flex;flex-direction:column;gap:7px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.2em;
+}
+.turn-state .st{ display:flex;align-items:center;gap:9px;color:var(--rule-c);transition:color .3s var(--e-out) }
+.turn-state .st i{ display:block;width:34px;height:1px;background:var(--hair-2);position:relative }
+.turn-state .st i::after{
+  content:'';position:absolute;inset:0 100% 0 0;background:var(--ink);
+  transition:inset .3s var(--e-out);
+}
+.turn-state .st.on{ color:var(--beat-c,var(--ink)) }
+.turn-state .st.on i::after{ inset:0;background:var(--beat-c,var(--ink)) }
+
+.turn-type{
+  position:sticky;top:0;height:100svh;margin-top:-100svh;
+  z-index:2;pointer-events:none;
+  display:grid;grid-template-columns:repeat(12,1fr);gap:0 28px;
+  /* 48 under the band, not 96: the band sits lower and the word above it
+     gets the difference as clearance */
+  padding:82px 64px 48px;align-content:space-between;
+}
+.turn-type > *{ pointer-events:auto }
+.turn-head{ grid-column:1 / span 2;grid-row:1;position:static;padding-top:0 }
+/* ==================================================================
+   THE FOOT OF 03
+
+   Two panes, one height, each full. Left is the statement: the beat's line
+   and the paragraph behind it. Right is the instrument: the beat's name,
+   the beat drawn on a small plate, and three facts. Under both, a rule cut
+   to the section's own rhythm rather than to equal thirds.
+
+   The type in here is on a minor third, 1.2: four sizes, declared once,
+   nothing typed by hand. The display line is Bricolage Grotesque, a
+   variable face with real optical size and width axes, scoped to this one
+   line so the rest of the page keeps its own voice.
+   ================================================================== */
+.turn-band{
+  /* down during the corridor, up once the first word has closed. a mask
+     and a lift rather than a fade alone, so it arrives instead of appears */
+  opacity:0;transform:translateY(14px);pointer-events:none;
+  transition:opacity .6s var(--e-out),transform .8s var(--e-out);
+  --t-1:10px; --t-2:12px; --t-3:14.4px;
+  --pane-blur:blur(18px) saturate(180%);
+  --spring:cubic-bezier(.22,1.15,.32,1);
+  --disp-b:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+  grid-column:1 / -1;grid-row:3;align-self:end;
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,1fr);
+  gap:0 clamp(20px,2.4vw,40px);align-items:stretch;
+}
+.turn-band.on{ opacity:1;transform:none;pointer-events:auto }
+/* one rule across the measure, and both panes hang from it */
+.turn-band::before{ content:'';grid-column:1 / -1;height:1px;background:rgba(11,12,12,.16);margin-bottom:14px }
+
+.tb-left{
+  display:flex;flex-direction:column;justify-content:space-between;gap:18px;
+  padding:16px 20px 16px;border-radius:10px;
+  background:linear-gradient(180deg,rgba(255,255,255,.17),rgba(255,255,255,.07));
+  backdrop-filter:var(--pane-blur);-webkit-backdrop-filter:var(--pane-blur);
+  box-shadow:0 1px 0 rgba(255,255,255,.38) inset;
+}
+.tb-line{
+  margin:0;font-family:var(--disp-b);font-weight:640;letter-spacing:-.022em;line-height:1.02;
+  font-size:clamp(38px,5.6vw,84px);font-variation-settings:'opsz' 96,'wdth' 82;
+  text-wrap:pretty;color:var(--ink);
+}
+html[data-lang="ko"] .tb-line{ font-family:var(--kor);font-weight:700;letter-spacing:-.035em;line-height:1.22;font-variation-settings:normal }
+.tb-cap{ margin:0;font-size:var(--t-3);line-height:1.55;color:#242D2B;max-width:62ch }
+html[data-lang="ko"] .tb-cap{ font-family:var(--kor) }
+
+.tb-card{
+  border:1px solid rgba(255,255,255,.46);border-radius:10px;overflow:hidden;
+  background:linear-gradient(180deg,rgba(255,255,255,.46),rgba(255,255,255,.32));
+  backdrop-filter:var(--pane-blur);-webkit-backdrop-filter:var(--pane-blur);
+  padding:16px 18px 14px;display:flex;flex-direction:column;
+  box-shadow:0 1px 0 rgba(255,255,255,.6) inset,0 10px 30px -16px rgba(12,26,24,.30);
+}
+.tb-h{ display:flex;align-items:baseline;gap:10px;margin:0 0 11px }
+.tb-h b{ font:500 var(--t-2)/1 var(--mono);letter-spacing:.16em;color:var(--w-c,var(--ink)) }
+
+/* the beat drawn, on a plate: an axis that stops short of the mark, a scale
+   cut the way a rule is, registration ticks at the corners, a code */
+.tb-plate{
+  position:relative;display:flex;align-items:center;justify-content:center;
+  flex:1;min-height:76px;margin:10px 0 12px;
+}
+.tb-mark{ display:block;width:clamp(44px,4.4vw,64px);color:var(--w-c,var(--ink));opacity:.92 }
+.tb-mark svg{ width:100%;height:auto;display:block }
+.tb-plate::before{
+  content:'';position:absolute;left:50%;top:0;bottom:0;width:1px;transform:translateX(-.5px);
+  background:linear-gradient(180deg,rgba(11,12,12,.14) 0 24%,transparent 24% 76%,rgba(11,12,12,.14) 76% 100%);
+}
+.tb-scale{ position:absolute;left:10px;top:6px;bottom:6px;width:9px;display:flex;flex-direction:column;justify-content:space-between }
+.tb-scale i{ display:block;height:1px;width:4px;background:rgba(11,12,12,.20) }
+.tb-scale i:nth-child(5n+1){ width:9px;background:rgba(11,12,12,.30) }
+.tb-corner{ position:absolute;width:6px;height:6px;pointer-events:none;opacity:.42 }
+.tb-corner.tl{ top:0;left:0;border-top:1px solid var(--w-c,var(--ink));border-left:1px solid var(--w-c,var(--ink)) }
+.tb-corner.tr{ top:0;right:0;border-top:1px solid var(--w-c,var(--ink));border-right:1px solid var(--w-c,var(--ink)) }
+.tb-corner.bl{ bottom:0;left:0;border-bottom:1px solid var(--w-c,var(--ink));border-left:1px solid var(--w-c,var(--ink)) }
+.tb-corner.br{ bottom:0;right:0;border-bottom:1px solid var(--w-c,var(--ink));border-right:1px solid var(--w-c,var(--ink)) }
+.tb-code{ position:absolute;left:50%;bottom:-1px;transform:translateX(-50%);padding:0 6px;
+  font:400 8.5px/1 var(--mono);letter-spacing:.22em;color:var(--dim) }
+
+.tb-rows{ list-style:none;margin:0;padding:0 }
+.tb-rows li{
+  display:flex;justify-content:space-between;gap:14px;padding:6px 0;
+  border-top:1px solid rgba(11,12,12,.16);font:400 var(--t-1)/1.5 var(--mono);letter-spacing:.07em;
+  text-transform:uppercase;color:#4A5452;font-variant-numeric:tabular-nums;
+}
+.tb-rows li > span{ flex:0 0 auto }
+.tb-rows li b{ font-weight:400;color:var(--ink);text-align:right;min-width:0;overflow-wrap:anywhere }
+html[data-lang="ko"] .tb-rows li{ text-transform:none;letter-spacing:.01em;font-family:var(--kor);font-size:10.5px }
+
+/* the rhythm rule: segments as wide as the scroll each beat owns, holds
+   drawn as real gaps, passed beats keeping their colour, spring easing */
+.tb-foot{ grid-column:1 / -1;margin-top:26px }
+.tb-rhythm{ display:grid;gap:11px }
+.tb-top{ display:flex;justify-content:flex-end;font:400 var(--t-1)/1 var(--mono);letter-spacing:.16em;color:var(--dim) }
+.tb-pct{ font-variant-numeric:tabular-nums;color:var(--w-c,var(--ink));font-weight:500 }
+.tb-pct s{ text-decoration:none;color:var(--dim);font-weight:400 }
+.tb-track{ display:grid;align-items:center;height:10px }
+.tb-seg{ position:relative;height:3px;border-radius:2px;
+  background:color-mix(in srgb, var(--sc) 10%, var(--hair));
+  transition:height .45s var(--spring),background .45s var(--spring) }
+.tb-seg.on{ height:7px }
+.tb-seg .fill{ position:absolute;inset:0 auto 0 0;width:0;border-radius:2px;background:var(--sc);transition:width .75s var(--spring) }
+.tb-seg.on .fill{ background:linear-gradient(90deg,var(--sc) 0%,var(--sc) 88%,color-mix(in srgb, var(--sc) 55%, transparent) 100%) }
+.tb-seg .knob{ position:absolute;top:50%;width:9px;height:9px;border-radius:50%;
+  background:var(--abyss);border:1.5px solid var(--sc);transform:translate(-50%,-50%);
+  transition:left .75s var(--spring);box-shadow:0 0 0 3px color-mix(in srgb, var(--sc) 14%, transparent);opacity:0 }
+.tb-seg.on .knob{ opacity:1 }
+.tb-hold{ height:1px;background-image:linear-gradient(90deg,var(--hair) 0 2px,transparent 2px 5px);background-size:5px 1px;opacity:.9 }
+.tb-labels{ display:grid;align-items:center }
+.tb-labels span{ display:flex;align-items:center;gap:6px;font:400 var(--t-1)/1 var(--mono);letter-spacing:.14em;color:#9AA3A1;transition:color .45s var(--spring) }
+.tb-labels span:not(:empty)::before{ content:'';width:3px;height:3px;border-radius:50%;background:currentColor;opacity:.6 }
+.tb-labels span.done{ color:var(--dim) }
+.tb-labels span.on{ color:var(--sc);font-weight:500 }
+
+@media (prefers-reduced-motion: reduce){ .turn-band *{ transition:none !important } }
+
+/* ---- section 03 with the corridor stood down ----
+   'still' keeps the canvas, which has drawn one frame of the last word and
+   will not draw another. 'off' means the canvas was never built, so there is
+   nothing to keep. Either way the pin is gone: a sticky frame with nothing
+   moving in it is just a long gap. */
+#s3[data-corridor] .turn-stage{ height:auto }
+#s3[data-corridor] .turn-frame{ position:static;height:auto;border-radius:0 }
+#s3[data-corridor] .turn-frame::before,#s3[data-corridor] .turn-frame::after{ display:none }
+#s3[data-corridor="still"] #corridor{ height:56svh }
+#s3[data-corridor="off"] .turn-frame{ display:none }
+#s3[data-corridor] .turn-type{
+  position:static;height:auto;margin-top:0;padding:56px 64px 72px;
+  grid-template-rows:auto auto auto;row-gap:34px;align-content:start;
+}
+/* every beat is stated, because none of them is going to arrive on its own */
+#s3[data-corridor] .turn-state .st{ color:var(--ink) }
+#s3[data-corridor] .turn-state .st i::after{ inset:0 }
+/* the band's markup is the last beat already, and with no corridor there
+   is no travelling to wait through, so it is simply up */
+#s3[data-corridor] .turn-band{ align-self:start;opacity:1;transform:none;pointer-events:auto }
+@media(max-width:900px){
+  #s3[data-corridor] .turn-type{ padding:40px 20px 56px;row-gap:26px }
+  #s3[data-corridor="still"] #corridor{ height:42svh }
+}
+
+#s3 .overline-item{ opacity:.22 }
+
+@media(max-width:900px){
+  /* Five rows, and only the second one stretches. The line used to sit in
+     the stretching row, which floated it into the middle of the frame where
+     the word lands. Putting every piece of type in an auto row below that
+     spacer makes the three of them one block at the foot, and gives the word
+     the clear half above it. */
+  .turn-type{ grid-template-columns:1fr;grid-template-rows:auto 1fr auto auto auto;
+    gap:0;padding:74px 20px 34px;align-content:stretch }
+  .turn-head,.turn-state,.turn-band{ grid-column:1 }
+  .turn-head{ grid-row:1 }
+  .turn-state{ grid-row:1;justify-self:end;align-self:start }
+  /* one column on a phone: the panes stack, the card first because the
+     word above already made the statement and the facts are what is new */
+  .turn-band{ grid-row:3;grid-template-columns:1fr;gap:10px 0 }
+  .tb-card{ order:-1;padding:12px 14px 10px }
+  .tb-left{ padding:12px 14px }
+  .tb-line{ font-size:clamp(24px,7vw,32px) }
+  /* The drawn plate goes on a phone. The band was near five hundred pixels
+     tall in portrait and the word above it had nowhere to sit: it was being
+     drawn behind the card. The mark is the one part of the card that says
+     nothing the word and the chips do not already say, so it is the part
+     that gives way. The band comes down to about three hundred and eighty. */
+  .tb-plate{ display:none }
+  .tb-h{ margin-bottom:8px }
+  .tb-cap{ font-size:13px }
+  .tb-foot{ margin-top:12px }
+}
+
+/* ---- projects: his actual repositories, not diagrams of them ---- */
+.workpanel{ list-style:none;grid-column:1 / span 12;display:block;padding:26px 0 8px;margin:0 }
+.wp-item{
+  display:grid;grid-template-columns:44px 1fr;gap:0 20px;align-items:start;
+  padding:22px 0;border-top:1px solid var(--hair);
+}
+.wp-item:first-child{ border-top:0 }
+.wp-n{ font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;color:var(--num);padding-top:5px }
+.wp-t{ margin:0 0 6px;font-family:var(--mono);font-size:14px;letter-spacing:.02em;color:var(--ink);font-weight:500 }
+.wp-d{ margin:0;font-size:14.5px;line-height:1.62;color:var(--muted);max-width:60ch }
+html[data-lang="ko"] .wp-d{ font-family:var(--kor) }
+.wp-l{ margin:9px 0 0;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase }
+.wp-l a{ color:var(--dim);text-decoration:none;border-bottom:1px solid transparent;transition:color .25s,border-color .25s }
+.wp-l a:hover{ color:var(--sun);border-bottom-color:var(--sun) }
+.wp-pending{ color:var(--rule-c) }
+.wp-more .wp-d a{ color:var(--dim);text-decoration:none;border-bottom:1px solid var(--hair-2) }
+.wp-more .wp-d a:hover{ color:var(--sun);border-bottom-color:var(--sun) }
+@media(max-width:900px){
+  .wp-item{ grid-template-columns:32px 1fr;gap:0 12px }
+  .wp-d{ font-size:14px }
+}
+
+/* ---- Korean line breaking ----
+   Without keep-all a browser breaks a Korean line at an arbitrary syllable,
+   which at display size reads as a rendering fault rather than a line break.
+   MDN: word breaks should not be used for CJK text. */
+html[data-lang="ko"] .hero-l,html[data-lang="ko"] .hero-r,
+html[data-lang="ko"] .big-line,html[data-lang="ko"] .pivot,
+html[data-lang="ko"] .turn-line,html[data-lang="ko"] .edu-name,
+html[data-lang="ko"] .lead,html[data-lang="ko"] .cap,
+html[data-lang="ko"] .turn-lead,html[data-lang="ko"] .wp-d,
+html[data-lang="ko"] .prose p,html[data-lang="ko"] .note,
+html[data-lang="ko"] .lead-s8,html[data-lang="ko"] .loc-note{
+  word-break:keep-all;
+  overflow-wrap:anywhere;   /* a long latin token still cannot overflow */
+}
+
+
+/* ==================================================================
+   05, THE RECORD
+
+   Education was a table: a mark, a name, a paragraph of prose and a pair
+   of years, on the same hairline grid as everything else. It read like a
+   spreadsheet. It is set as a record now. Two display faces and no third:
+   Fraunces carries the section name, Playfair the institutions, Garamond
+   everything that is read. The military service is one item in the meta
+   line rather than a sentence, because the only reason to mention it here
+   is that the degree spans years that were not all spent at the school.
+   ================================================================== */
+#s6b{ --ser:"EB Garamond",Georgia,"Times New Roman",serif;
+      --mod:"Fraunces","Playfair Display",Georgia,serif;
+      --k:#0D1211; --claret:#7A2E3B;
+      --ac-hair:#DEE6E4; --ac-hair2:#C7D3D1; --ac-rule:#A6B4B2;
+      --ac-ink:#0D1211; --ac-muted:#4F5B59; --ac-dim:#6E7A78;
+      padding:clamp(92px,10vw,150px) 0 clamp(70px,8vw,120px) }
+/* the marquee is placed at 4% of its section; here that is straight through
+   the display line, so it is pinned to the top edge instead */
+#s6b .overline-rail{ top:clamp(14px,1.8vw,34px) }
+#s6b .sec-head{ position:static;padding-top:0 }
+#s6b .sec-head .lb{ display:none }
+#s6b .sec-head .n{ color:var(--claret);font-size:11px;letter-spacing:.24em }
+
+#s6b .ac-h{ margin:clamp(46px,5.6vw,86px) auto 0;max-width:62ch;text-align:center }
+/* one word on its own gets the weight and the shade a title page gives it.
+   The glyphs are transparent so the gradient shows, which is why the
+   shadow is on filter rather than text-shadow. */
+#s6b .ac-t{
+  margin:0;font-family:var(--mod);font-weight:580;
+  font-variation-settings:"opsz" 144,"SOFT" 0,"WONK" 0;
+  font-size:clamp(42px,5vw,76px);line-height:1;letter-spacing:-.022em;
+  background:linear-gradient(178deg,#33403E 0%,#0D1211 54%,#050908 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 1px 0 rgb(255 255 255 / .62)) drop-shadow(0 7px 13px rgb(13 18 17 / .18));
+}
+html[data-lang="ko"] #s6b .ac-t{ letter-spacing:-.01em }
+#s6b .orn-b{ transform-origin:center;display:flex;align-items:center;justify-content:center;gap:13px;
+  width:min(280px,62%);margin:clamp(20px,2.2vw,30px) auto 0 }
+#s6b .orn-b s{ flex:1;height:1px;background:var(--ac-hair2);text-decoration:none }
+#s6b .orn-b b{ width:4px;height:4px;transform:rotate(45deg);background:var(--claret) }
+#s6b .dbl{ margin-top:clamp(40px,5vw,72px);height:4px;transform-origin:center;
+  border-top:1px solid var(--ac-rule);border-bottom:1px solid var(--ac-rule) }
+
+#s6b .ent{ list-style:none;margin:0;padding:0 }
+#s6b .ent-i{ display:grid;grid-template-columns:96px minmax(0,1fr);
+  gap:clamp(20px,3vw,46px);padding:clamp(30px,3.6vw,48px) 0;
+  border-bottom:1px solid var(--ac-hair);position:relative }
+#s6b .ent-i::before{ content:'';position:absolute;left:-18px;top:clamp(34px,3.9vw,52px);
+  width:2px;height:34px;background:var(--k);opacity:0;transition:opacity .3s var(--ease) }
+#s6b .ent-i:hover::before{ opacity:1 }
+#s6b .ent-mk{ padding-top:9px }
+#s6b .ent-mk img{ max-height:38px;width:auto }
+#s6b .ent-mk img[src*="whimoon"]{ max-height:27px }
+#s6b .ent-b h2{ margin:0;font-family:var(--disp);font-weight:500;
+  font-size:clamp(26px,2.7vw,37px);line-height:1.12;letter-spacing:-.018em;color:var(--ac-ink) }
+html[data-lang="ko"] #s6b .ent-b h2{ font-family:var(--kor-disp);font-weight:600;letter-spacing:-.025em }
+#s6b .ent-b h2 .city{ font-family:var(--ser);font-style:italic;font-weight:400;
+  font-size:.62em;color:var(--ac-muted);letter-spacing:0 }
+html[data-lang="ko"] #s6b .ent-b h2 .city{ font-family:var(--kor);font-style:normal;font-size:.56em }
+#s6b .ent-d{ margin:11px 0 0;font-family:var(--ser);font-size:clamp(18px,1.7vw,21px);
+  line-height:1.45;color:var(--ac-ink) }
+html[data-lang="ko"] #s6b .ent-d{ font-family:var(--kor);font-size:16px }
+#s6b .ent-m{ margin:15px 0 0;font-family:var(--ser);font-size:16px;
+  font-variant-caps:all-small-caps;font-variant-numeric:oldstyle-nums;
+  letter-spacing:.11em;color:var(--ac-muted);
+  display:flex;flex-wrap:wrap;gap:0 12px;align-items:baseline }
+html[data-lang="ko"] #s6b .ent-m{ font-family:var(--kor);font-size:12.5px;
+  letter-spacing:.04em;font-variant-caps:normal }
+#s6b .ent-m i{ font-style:normal;color:var(--ac-hair2) }
+#s6b .ent-m em{ font-style:normal;color:var(--claret) }
+
+@media(max-width:900px){
+  #s6b .ent-i{ grid-template-columns:1fr;gap:16px;padding:28px 0 }
+  #s6b .ent-mk{ padding-top:0 }
+  #s6b .ac-t{ font-size:clamp(34px,10vw,50px) }
+  #s6b .overline-rail{ top:12px }
+}
+
+/* ==================================================================
+   04, TWO KINDS OF PROJECT
+
+   The panel used to be one list. It is two columns now: the work half is
+   a single document in a case and takes the narrow side, the personal half
+   is a list with a picture of each live page and keeps the width. There is
+   no rule between them, because the two heads and the gutter already say
+   where one stops. The case is a real 3D rig, so it turns with the pointer
+   and its shadow moves with it; the light on it is one moving source
+   driven by the same value as the turn.
+   ================================================================== */
+.wp-split{
+  grid-column:1 / span 12;display:grid;align-items:start;
+  grid-template-columns:minmax(286px,4fr) minmax(0,8fr);
+  gap:clamp(30px,4.4vw,78px);padding:26px 0 8px;
+}
+.col-h{
+  display:flex;align-items:baseline;gap:14px;font-family:var(--mono);
+  border-bottom:1px solid var(--hair-2);padding-bottom:12px;
+}
+.col-h b{font-size:11px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--ink)}
+html[data-lang="ko"] .col-h b{font-family:var(--kor);letter-spacing:.1em;font-weight:600;font-size:12.5px}
+.col-h i{font-style:normal;margin-left:auto;font-size:9.5px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--rule-c)}
+html[data-lang="ko"] .col-h i{font-family:var(--kor);letter-spacing:.06em}
+.wp-personal .workpanel{padding-top:0}
+
+/* the list grows a picture column. each one is the live page, mounted */
+.wp-item{grid-template-columns:34px 132px minmax(0,1fr);gap:0 20px}
+.wp-more{grid-template-columns:34px minmax(0,1fr)}
+.wp-more .wp-body{grid-column:2}
+.wp-thumb{
+  position:relative;display:block;cursor:pointer;background:#fff;padding:2px;border-radius:3px;
+  box-shadow:0 0 0 1px rgb(11 12 12 / .11),0 2px 4px -2px rgb(11 12 12 / .24),
+    0 8px 16px -10px rgb(11 12 12 / .34);
+  transition:transform .5s var(--ease),box-shadow .5s var(--ease);
+}
+.wp-thumb span{display:block;position:relative;aspect-ratio:16/10;overflow:hidden;border-radius:2px;
+  background:var(--hair);box-shadow:inset 0 0 0 1px rgb(11 12 12 / .10)}
+.wp-thumb img{width:100%;height:100%;object-fit:cover;display:block;
+  filter:saturate(.9) contrast(1.02);transition:transform .7s var(--ease),filter .5s ease}
+.wp-item:hover .wp-thumb{transform:translateY(-4px);
+  box-shadow:0 0 0 1px rgb(11 12 12 / .16),0 4px 7px -3px rgb(11 12 12 / .28),
+    0 20px 30px -14px rgb(11 12 12 / .46)}
+.wp-item:hover .wp-thumb img{transform:scale(1.07);filter:saturate(1.04) contrast(1.03)}
+
+/* ---- the case ---- */
+.case-stage{position:relative;height:clamp(300px,25vw,364px);margin-top:clamp(26px,2.8vw,42px);
+  perspective:1000px;perspective-origin:50% 44%;display:flex;align-items:center;justify-content:center}
+.case-rig{position:relative;transform-style:preserve-3d;
+  transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .32s var(--ease)}
+.case-obj{position:relative;display:block;text-decoration:none;color:inherit;cursor:pointer;
+  transform-style:preserve-3d;-webkit-tap-highlight-color:transparent}
+.case-frame{position:relative;width:clamp(146px,11.5vw,186px);aspect-ratio:1/1.32;
+  background:linear-gradient(150deg,#2E2A25,#171512 62%);padding:8px;border-radius:2px;
+  box-shadow:0 1px 0 rgb(255 255 255 / .10) inset,0 0 0 1px rgb(0 0 0 / .45),
+    0 20px 34px -20px rgb(0 0 0 / .5);
+  transform:translateZ(30px);transition:box-shadow .5s var(--ease)}
+.case-obj:hover .case-frame{box-shadow:0 1px 0 rgb(255 255 255 / .16) inset,0 0 0 1px rgb(0 0 0 / .45),
+  0 34px 50px -22px rgb(0 0 0 / .55)}
+.case-mat{position:relative;height:100%;background:#F4F2EC;padding:11% 10%;
+  box-shadow:inset 0 0 0 1px rgb(0 0 0 / .12),inset 0 3px 8px -4px rgb(0 0 0 / .30)}
+.case-mat::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(124% 84% at var(--lx,50%) -10%,rgb(255 255 255 / .52),
+    rgb(255 252 240 / .18) 40%,transparent 66%)}
+.case-sheet{position:relative;height:100%;background:#fff;overflow:hidden;
+  box-shadow:0 1px 4px -2px rgb(0 0 0 / .35)}
+.case-sheet::after{content:'';position:absolute;inset:0;z-index:2;pointer-events:none;
+  background:radial-gradient(130% 90% at var(--lx,50%) -4%,rgb(255 253 244 / .10),
+    rgb(255 250 232 / .04) 34%,rgb(255 250 232 / .01) 58%,transparent 76%);
+  mix-blend-mode:screen;opacity:.9}
+.case-pad{position:absolute;inset:9% 10% 12%}
+.case-top{display:flex;justify-content:space-between;align-items:baseline}
+.case-brand{font:500 3.2px/1 var(--mono);letter-spacing:.34em;text-transform:uppercase;color:#9AA2A0}
+.case-yr{font:500 3.2px/1 var(--mono);letter-spacing:.2em;color:#B4B9B8}
+.case-h{margin-top:4px;font-family:var(--disp);font-weight:500;font-size:7.6px;line-height:1.08;color:#141716}
+.case-rule{margin-top:5px;height:1.6px;width:34%;background:#7A2E3B;opacity:.85}
+.case-cols{margin-top:6px;display:grid;grid-template-columns:1fr 1fr;gap:0 6px}
+.case-cols i{display:block;height:1.3px;border-radius:2px;background:#E6E9E8;margin-bottom:2.6px}
+.case-fig{margin-top:5px;font:500 2.9px/1 var(--mono);letter-spacing:.26em;text-transform:uppercase;color:#B4B9B8}
+.case-plate{margin-top:3px;aspect-ratio:16/9;position:relative;overflow:hidden;
+  background:linear-gradient(142deg,#EAEEED 0%,#DEE4E2 52%,#D4DBD9 100%);
+  box-shadow:inset 0 0 0 .6px rgb(11 12 12 / .13)}
+.case-cap{margin-top:4px;display:grid;gap:2.2px}
+.case-cap i{display:block;height:1.3px;border-radius:2px;background:#EAEDEC}
+.case-strip{margin-top:5px;display:grid;grid-template-columns:repeat(3,1fr);gap:2.6px}
+.case-strip b{display:block;aspect-ratio:4/3;background:linear-gradient(140deg,#EDF0EF,#E0E5E3)}
+.case-strip b:nth-child(2){background:linear-gradient(140deg,#E4E9E7,#D6DCDA)}
+.case-strip b:nth-child(3){background:linear-gradient(140deg,#EFF1F0,#E3E7E6)}
+.case-foot{position:absolute;left:10%;right:10%;bottom:5%;display:flex;justify-content:space-between;align-items:flex-end}
+.case-foot b{font-family:var(--disp);font-style:italic;font-weight:400;font-size:5px;color:#7C8583}
+.case-foot em{font-style:normal;font:500 3.2px/1 var(--mono);letter-spacing:.2em;color:#B4B9B8}
+.case-glass{position:absolute;inset:8px;pointer-events:none;opacity:.82;transition:opacity .4s ease;
+  background:linear-gradient(118deg,rgb(255 255 255 / 0) calc(var(--lx,50%) - 46%),
+    rgb(255 255 255 / .42) calc(var(--lx,50%) - 8%),
+    rgb(255 255 255 / .07) calc(var(--lx,50%) + 8%),
+    rgb(255 255 255 / 0) calc(var(--lx,50%) + 40%))}
+.case-obj:hover .case-glass{opacity:1}
+.case-box{position:absolute;inset:-24px -26px -16px;border:1px solid rgb(11 12 12 / .15);border-radius:3px;
+  transform:translateZ(46px);pointer-events:none;
+  background:linear-gradient(122deg,rgb(11 12 12 / .05) 0%,rgb(11 12 12 / 0) 34%,
+    rgb(11 12 12 / .03) 62%,rgb(11 12 12 / 0) 84%)}
+.case-box::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:rgb(11 12 12 / .26)}
+.case-cone{position:absolute;left:50%;top:-46%;width:82%;height:150%;margin-left:-41%;
+  background:linear-gradient(180deg,rgb(11 12 12 / .15),rgb(11 12 12 / .03) 62%,transparent 82%);
+  clip-path:polygon(41% 0,59% 0,104% 100%,-4% 100%);filter:blur(9px);
+  transform:translateZ(-36px);pointer-events:none}
+.case-pool{position:absolute;left:50%;bottom:-10%;width:230%;height:32%;margin-left:-115%;border-radius:50%;
+  background:radial-gradient(closest-side,rgb(11 12 12 / .10),transparent 72%);
+  filter:blur(10px);transform:translateZ(-42px);pointer-events:none}
+.case-cast{position:absolute;left:50%;bottom:-5%;width:120%;height:14%;margin-left:-60%;border-radius:50%;
+  background:rgb(0 0 0 / .30);filter:blur(12px);
+  transform:translateZ(-40px) translateX(calc(var(--ry,0deg) * 1.1));
+  transition:transform .32s var(--ease);pointer-events:none}
+
+/* ---- the download. the arrow leaves, a new one arrives from above ---- */
+.dl{margin-top:clamp(24px,2.6vw,38px);display:flex;flex-direction:column;align-items:center;gap:12px}
+.dl-btn{position:relative;display:inline-flex;align-items:center;gap:12px;overflow:hidden;
+  padding:13px 22px;border:1px solid var(--ink);background:none;color:var(--ink);
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;
+  text-decoration:none;cursor:pointer;isolation:isolate}
+html[data-lang="ko"] .dl-btn{font-family:var(--kor);letter-spacing:.06em;font-size:12px}
+.dl-btn::before{content:'';position:absolute;inset:0;z-index:-1;background:var(--ink);
+  transform:translateY(101%);transition:transform .48s var(--ease)}
+.dl-btn:hover::before,.dl-btn:focus-visible::before{transform:translateY(0)}
+.dl-btn:hover,.dl-btn:focus-visible{color:var(--abyss)}
+.dl-ico{position:relative;width:11px;height:15px;flex:none;overflow:hidden}
+.dl-ico svg{position:absolute;inset:0;width:11px;height:15px;fill:none;stroke:currentColor;
+  stroke-width:1.5;stroke-linecap:square;transition:transform .42s var(--ease)}
+.dl-ico svg.b{transform:translateY(-118%)}
+.dl-btn:hover .dl-ico svg.a{transform:translateY(118%)}
+.dl-btn:hover .dl-ico svg.b{transform:translateY(0)}
+.dl-m{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--rule-c)}
+html[data-lang="ko"] .dl-m{font-family:var(--kor);letter-spacing:.06em}
+.dl-m a{color:var(--dim);text-decoration:none;cursor:pointer;transition:color .2s}
+.dl-m a:hover{color:var(--ink)}
+
+@media(max-width:900px){
+  .wp-split{grid-template-columns:1fr;gap:48px}
+  .wp-item{grid-template-columns:32px minmax(0,1fr);gap:0 12px}
+  .wp-thumb{grid-column:2;margin-bottom:14px}
+  .case-stage{height:320px}
+}
+
+/* ==================================================================
+   04 INTO THE WATER
+
+   The band is as tall as the canvas plus a fixed allowance of sky, and the
+   canvas is pinned to its foot, so everything the head mask fades is that
+   allowance and the island's peak is never inside the fade. Four treatments
+   share the markup; the class on .waterband picks one.
+   ================================================================== */
+.waterband{ --sky:154px;--soak-t:122px;--p:0;
+  height:calc(clamp(360px,48vh,600px) + var(--sky));
+  margin-top:calc(var(--soak-t) * -1);
+  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 var(--soak-t),#000 calc(100% - var(--soak)),transparent 100%);
+  mask-image:linear-gradient(180deg,transparent 0,#000 var(--soak-t),#000 calc(100% - var(--soak)),transparent 100%);
+  background:
+    linear-gradient(180deg,#FAFAFA 0%,#FAFAFA 24%,#F3E4DB 44.5%,#EFD9CD 45%,#4C8FD6 45.4%,#0D52BD 56%,#061F60 82%,#0A0B0F 100%)
+      bottom / 100% calc(100% - var(--sky)) no-repeat,
+    #FAFAFA;
+}
+.waterband canvas{position:absolute;left:0;right:0;bottom:0;
+  width:100%;height:calc(100% - var(--sky));display:block}
+.wb-veil,.wb-dev{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0}
+.wb-veil{background:linear-gradient(180deg,var(--abyss) 0%,var(--abyss) 30%,
+  rgb(250 250 250 / .9) 56%,rgb(250 250 250 / .74) 100%)}
+.wb-wet{position:absolute;left:0;right:0;height:2px;z-index:3;opacity:0;
+  background:linear-gradient(90deg,transparent,rgb(255 255 255 / .85) 14%,rgb(255 255 255 / .85) 86%,transparent);
+  filter:blur(1px)}
+.wb-cap{position:absolute;z-index:4;left:0;right:0;top:23%;margin:0;pointer-events:none;
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;
+  color:rgb(11 12 12 / .46);
+  opacity:calc(min(1, max(0, var(--p) - .1) * 2.6) * max(0, 1 - max(0, var(--p) - .74) * 4))}
+html[data-lang="ko"] .wb-cap{font-family:var(--kor);letter-spacing:.1em;font-size:11.5px}
+.wb-cap span{display:block;width:min(1280px,calc(100% - 96px));margin:0 auto}
+.wb-cap i{display:block;width:min(1280px,calc(100% - 96px));margin:0 auto 10px;height:1px;
+  background:rgb(11 12 12 / .18);transform-origin:left center;
+  transform:scaleX(calc(min(1, max(0, var(--p) - .1) * 2)))}
+
+/* 1 · soak, evenly */
+.waterband.t1 .wb-veil{opacity:calc(1 - var(--p))}
+/* 2 · soak, opening at the horizon */
+.waterband.t2 .wb-veil{opacity:1;--w:calc(var(--p) * 64%);
+  -webkit-mask-image:linear-gradient(180deg,#000 0,#000 calc(45% - var(--w)),
+    transparent calc(45% - var(--w) + 5%),transparent calc(45% + var(--w) - 5%),
+    #000 calc(45% + var(--w)),#000 100%);
+  mask-image:linear-gradient(180deg,#000 0,#000 calc(45% - var(--w)),
+    transparent calc(45% - var(--w) + 5%),transparent calc(45% + var(--w) - 5%),
+    #000 calc(45% + var(--w)),#000 100%)}
+/* 3 · developing, focus and colour together */
+.waterband.t3 canvas{filter:blur(calc((1 - var(--p)) * 18px)) saturate(calc(.04 + var(--p) * .96))
+  contrast(calc(.7 + var(--p) * .3)) brightness(calc(1.2 - var(--p) * .2));
+  opacity:calc(.2 + var(--p) * .8)}
+/* 4 · developing in the tray. the wet line climbs and the print finishes
+       behind it. backdrop-filter, so one canvas can be both states at once. */
+.waterband.t4 .wb-dev{opacity:1;--y:calc((1 - var(--p)) * 100%);
+  -webkit-backdrop-filter:blur(15px) saturate(.06) brightness(1.18) contrast(.72);
+  backdrop-filter:blur(15px) saturate(.06) brightness(1.18) contrast(.72);
+  background:rgb(250 250 250 / .34);
+  -webkit-mask-image:linear-gradient(180deg,#000 calc(var(--y) - 13%),transparent var(--y));
+  mask-image:linear-gradient(180deg,#000 calc(var(--y) - 13%),transparent var(--y))}
+.waterband.t4 .wb-wet{opacity:calc(min(1, var(--p) * 5) * min(1, (1 - var(--p)) * 5));
+  top:calc((1 - var(--p)) * 100%)}
+html.no-motion .wb-veil,html.no-motion .wb-dev,html.no-motion .wb-wet{display:none}
+
+@media(max-width:900px){
+  .waterband{--sky:104px;--soak-t:94px}
+  .wb-cap{font-size:9.5px;top:20%}
+  .wb-cap span,.wb-cap i{width:calc(100% - 40px)}
+}
+
+/* the two service lines carry the post, not just the dates */
+#s5 .data .d-role{
+  display:block;margin-bottom:5px;font-family:var(--mono);font-size:10px;font-weight:500;
+  letter-spacing:.22em;text-transform:uppercase;color:var(--rokmc-gold);
+}
+html[data-lang="ko"] #s5 .data .d-role{ font-family:var(--kor);letter-spacing:.08em;font-size:11.5px }

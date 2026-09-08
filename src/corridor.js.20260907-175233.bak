@@ -1,0 +1,656 @@
+import * as THREE from 'three'
+import gsap from 'gsap'
+import ScrollTrigger from 'gsap/ScrollTrigger'
+
+/* ------------------------------------------------------------------
+   THE CORRIDOR
+
+   Four beats in one pin: the reader travels a corridor, comes out of it
+   as material, and that material settles into three words in turn.
+   IDEA, then the work, then what the work produced.
+
+   The claim is the middle one. Anyone can have an idea and anyone can
+   point at a finished thing. What is being said here is that the same
+   person carried it across, so the middle beat is the one the piece is
+   built around and the two either side of it are the setup and the
+   payoff.
+
+   The corridor is a signed distance field, so there is no geometry at
+   all: one fullscreen quad, ninety six march steps a pixel. It stays
+   smooth at any resolution because there is nothing to tessellate.
+
+   Nothing here is driven by a clock. uZ, uP, uQ and uR are all read off
+   the scroll, which means the piece has no idle cost: when the reader
+   stops, the last frame is already correct and nothing needs to be
+   drawn again. There is deliberately no requestAnimationFrame loop.
+   Rendering happens inside the ScrollTrigger update, which fires while
+   the scrub settles and then stops on its own.
+   ------------------------------------------------------------------ */
+
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v))
+const smooth = (t) => t * t * (3 - 2 * t)
+
+/* The corridor runs to ACT1_END and hands over across CROSS. Each word
+   then closes up, holds, and comes apart into the next one. The holds
+   are not dead scroll: a word has to sit still long enough to be read
+   as a statement before it is taken apart, or the three of them read as
+   one continuous smear and none of them lands. */
+const ACT1_END = 0.40
+const CROSS = 0.12
+const W1_IN = ACT1_END - CROSS, W1_AT = 0.50
+const W2_IN = 0.58, W2_AT = 0.74
+/* the last word closes at 0.94 rather than 0.98 so it holds, formed, for
+   the final six percent of the pin instead of two */
+const W3_IN = 0.82, W3_AT = 0.94
+
+export function createCorridor(canvas, opts = {}) {
+  const section = canvas.closest('section')
+  const stage = section?.querySelector('.turn-stage')
+  if (!section || !stage) return null
+
+  const N = opts.count ?? 60000
+  const HALO_EVERY = opts.haloEvery ?? 6
+  const DPR_CAP = opts.dpr ?? 2
+  const WORDS = opts.words ?? ['IDEA', 'EXECUTION', 'DELIVERED']
+
+  const R = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: false, powerPreference: 'high-performance' })
+  R.setPixelRatio(Math.min(devicePixelRatio, DPR_CAP))
+  R.outputColorSpace = THREE.SRGBColorSpace
+  /* The clear has to be the page ground. While an earlier version blitted
+     the corridor back as a fullscreen quad that quad repainted every pixel,
+     so the renderer default of black was never once visible. Drawing the
+     corridor direct exposes it: past the handover the corridor pass is
+     skipped and only the points draw, leaving the clear as the background.
+     0xFAFAFA is --abyss, and PAPER in the shader, so the corridor fading
+     out and the empty frame land on the same value. */
+  R.setClearColor(0xFAFAFA, 1)
+  R.autoClear = false
+
+  /* ---------- pass 1, the corridor ---------- */
+  const tunScene = new THREE.Scene()
+  const tunCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
+  const tunU = {
+    uRes: { value: new THREE.Vector2(1, 1) }, uZ: { value: 0 }, uP: { value: 0 }, uOut: { value: 0 },
+  }
+  const tunMat = new THREE.ShaderMaterial({
+    uniforms: tunU, depthTest: false, depthWrite: false,
+    vertexShader: `void main(){ gl_Position = vec4(position,1.0); }`,
+    fragmentShader: `
+precision highp float;
+uniform vec2 uRes; uniform float uZ, uP, uOut;
+const vec3 INK=vec3(0.043,0.047,0.047);
+const vec3 SEA=vec3(0.055,0.420,0.376);
+const vec3 FOAM=vec3(0.498,0.839,0.780);
+const vec3 SUN=vec3(0.878,0.400,0.165);
+const vec3 PAPER=vec3(0.980,0.980,0.980);
+
+vec2 path(float z){
+  return vec2(sin(z*0.075)*2.6 + sin(z*0.031)*1.5,
+              cos(z*0.061)*1.9 + cos(z*0.024)*1.1);
+}
+float box2(vec2 p, vec2 b, float rad){
+  vec2 d = abs(p)-b+rad;
+  return length(max(d,0.0)) + min(max(d.x,d.y),0.0) - rad;
+}
+float map(vec3 p, out float major){
+  vec2 q = p.xy - path(p.z);
+  float w = -box2(q, vec2(3.05), 1.25);
+  float rib = sin(p.z*2.2);
+  /* a ramp, not a step. The hard step put a crease in the distance field at
+     the edge of every major rib; the normal estimate flips across a crease,
+     the diffuse hits one, the fresnel hits one, and the lighting saturates
+     to pure white along the edge: the hard white streak at the mouth. */
+  major = smoothstep(0.78, 0.92, sin(p.z*0.55));
+  w += rib*0.055 + major*rib*0.075;
+  /* Two pieces of undefined behaviour lived on these three lines and between
+     them they blanked the whole frame whenever uZ landed on exactly 0.
+
+     atan(0,0) is undefined in GLSL, and the camera sits on the corridor axis
+     by construction, so the first march sample every frame has q exactly
+     (0,0). Guarded rather than nudged: adding an epsilon to q would tilt the
+     flutes by a hair everywhere to fix one degenerate sample.
+
+     smoothstep is undefined when edge0 >= edge1, and this was written
+     backwards as smoothstep(-40, -150, z) to mean "ramp in as the camera
+     goes deeper". Some drivers clamp it and some hand back NaN, and a NaN
+     distance is unrecoverable here: every comparison against it is false, so
+     the march never breaks, hit stays 0 and the fragment falls through to
+     PAPER. That is why the corridor was pure white at z = 0 and perfect at
+     z = -0.001. Not a knife edge in the shading, a branch into nonsense. */
+  float a = dot(q,q) < 1e-12 ? 0.0 : atan(q.y,q.x);
+  float deep = 1.0 - smoothstep(-150.0, -40.0, p.z);
+  w += sin(a*14.0)*0.030;
+  w += sin(a*30.0 + p.z*3.0)*0.020*deep;
+  return w;
+}
+vec3 nAt(vec3 p){
+  vec2 e=vec2(0.0026,0.0); float m;
+  return normalize(vec3(map(p+e.xyy,m)-map(p-e.xyy,m),
+                        map(p+e.yxy,m)-map(p-e.yxy,m),
+                        map(p+e.yyx,m)-map(p-e.yyx,m)));
+}
+void main(){
+  vec2 uv = (gl_FragCoord.xy - 0.5*uRes)/uRes.y;
+  float z0 = uZ;
+  vec3 ro = vec3(path(z0), z0);
+  vec3 ta = vec3(path(z0-9.0), z0-9.0);
+  vec3 fw = normalize(ta-ro);
+  vec3 rt = normalize(cross(vec3(0.0,1.0,0.0), fw));
+  vec3 up = cross(fw, rt);
+  float bank = (ta.x-ro.x)*0.10;
+  vec3 rd = normalize(uv.x*(rt*cos(bank)+up*sin(bank)) + uv.y*(up*cos(bank)-rt*sin(bank)) + 1.5*fw);
+
+  /* 96 steps at 0.82, which is what the corridor was marched at before it
+     was merged in here. Dropping to 64 at 0.92 to buy frames is what turned
+     the ribs into blobs: grazing rays never converge inside the budget, the
+     march stops mid air and nAt returns a normal for a point that is not on
+     any surface. Under marching does not read as cheaper, it reads as
+     out of focus. */
+  float t=0.0, steps=0.0, major=0.0; int hit=0;
+  for(int i=0;i<96;i++){
+    vec3 p = ro + rd*t;
+    float d = map(p, major);
+    if(d < 0.0015*t || t > 140.0){ hit=1; steps=float(i); break; }
+    t += d*0.82;
+  }
+  /* A ray that spends all 96 steps without registering a hit is not out in
+     the open: the tube is closed, so it is grazing a wall, creeping along
+     it in steps too small to clear the threshold. Left unhandled it fell
+     through to the paper default and drew a hard white line down the one
+     corner where that happens. It is shaded as a hit where it stopped. */
+  if(hit==0 && t < 140.0){ hit=1; steps=96.0; }
+  vec3 col = PAPER;
+  if(hit==1 && t<140.0){
+    vec3 p = ro+rd*t, n = nAt(p);
+    vec3 lp = vec3(path(z0-5.0), z0-5.0);
+    float dif = max(dot(n, normalize(lp-p)), 0.0);
+    float fres = pow(1.0-max(dot(n,-rd),0.0), 2.4);
+    float ao = 1.0 - steps/96.0;
+
+    /* Ported back verbatim from the standalone corridor, which is the one
+       that read dark and sharp. Everything in here had been retuned against
+       a frame that was being gamma encoded twice, so each value was
+       compensating for a wash that no longer exists. Depth runs off axial
+       travel rather than ray distance: it is how far down the corridor the
+       surface is, which is the thing the colour is meant to describe. */
+    float depth = clamp((z0-p.z)/130.0, 0.0, 1.0);
+    vec3 base = mix(INK, SEA, smoothstep(0.05,0.55,depth));
+    base = mix(base, FOAM, smoothstep(0.55,1.0,depth)*0.85);
+    base = mix(base, SUN, major*0.28*smoothstep(0.1,0.7,depth));
+
+    /* darker mids, brighter ribs: the diffuse gain up, the ambient held,
+       so the corridor reads as carved rather than as haze */
+    col = base*(0.16 + dif*1.05)*(0.35 + ao*0.75);
+    col += FOAM*fres*0.24;
+    /* the tight specular on the major ribs. this single line is most of why
+       the corridor reads as machined rather than as fog. */
+    /* a sheen on the major ribs, not a needle: the 22nd power caught the one
+       corner that faces the light dead on and drew a hard white line down it */
+    col += SUN*pow(max(dif,0.0), 10.0)*0.12*major;
+    /* nothing on the wall is allowed to reach paper white on its own; the
+       only white in the frame is the light at the end of it */
+    col = min(col, vec3(0.86));
+    col = mix(col, PAPER, 1.0-exp(-t*0.0100));
+  }
+  /* the opening, which opens right out as the second act takes over */
+  float glow = smoothstep(0.42 + uOut*1.5, 0.0, length(uv));
+  /* the corridor is never fully erased. it opens out and stays as a ghost
+     under the particles, so the two acts overlap instead of leaving a gap
+     of empty page between them. */
+  /* the fade has to reach PAPER exactly where the render loop stops drawing
+     this pass. it was mixing to 0.72, so the shader was still holding a
+     twenty eight percent ghost at the instant the draw was skipped, and the
+     remainder popped off in one frame. the overlap between the two acts is
+     the cross itself, not a residue left behind after it. */
+  /* the white out follows the square of the crossfade, so the corridor is
+     still there through most of the handover and goes to paper only at the
+     end. it still reaches one exactly where the pass stops, so no pop. */
+  col = mix(col, PAPER, min(1.0, glow*0.34 + uOut*uOut));
+  col = pow(clamp(col,0.0,1.0), vec3(0.4545));
+  gl_FragColor = vec4(col,1.0);
+}`,
+  })
+  tunScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), tunMat))
+
+  /* ---------- pass 2, the material ---------- */
+  const ptScene = new THREE.Scene()
+  const ptCam = new THREE.PerspectiveCamera(42, 1, 0.1, 400)
+  ptCam.position.set(0, 0, 10.4)
+  /* A word rasterised by wordPoints is always 10.2 units wide, whatever it
+     says, so the only thing that decides whether it fits is how far back the
+     camera stands. 10.4 was not derived from anything: it happens to work at
+     a desktop aspect and it puts two thirds of the word outside the frame in
+     portrait, where the horizontal field is less than a third as wide. */
+  const WORD_HALF = 5.1
+  const V_HALF = Math.tan((42 * Math.PI / 180) / 2)
+
+  /* four positions per point: the spread it arrives as, then the three
+     words it becomes in turn */
+  const from = new Float32Array(N * 3)
+  const to = new Float32Array(N * 3), to2 = new Float32Array(N * 3), to3 = new Float32Array(N * 3)
+  const seed = new Float32Array(N)
+  for (let i = 0; i < N; i++) {
+    const r = 5.2 + Math.random() * 5.4
+    const th = Math.random() * Math.PI * 2, ph = Math.acos(2 * Math.random() - 1)
+    from[i * 3] = Math.sin(ph) * Math.cos(th) * r
+    from[i * 3 + 1] = Math.sin(ph) * Math.sin(th) * r * 0.62
+    from[i * 3 + 2] = Math.cos(ph) * r * 0.5
+    seed[i] = Math.random()
+  }
+
+  const pg = new THREE.BufferGeometry()
+  pg.setAttribute('position', new THREE.BufferAttribute(from.slice(), 3))
+  pg.setAttribute('aPos', new THREE.BufferAttribute(from, 3))
+  pg.setAttribute('bPos', new THREE.BufferAttribute(to, 3))
+  pg.setAttribute('cPos', new THREE.BufferAttribute(to2, 3))
+  pg.setAttribute('dPos', new THREE.BufferAttribute(to3, 3))
+  pg.setAttribute('seed', new THREE.BufferAttribute(seed, 1))
+
+  const ptU = { uP: { value: 0 }, uQ: { value: 0 }, uR: { value: 0 }, uDpr: { value: Math.min(devicePixelRatio, DPR_CAP) } }
+  const VS = `
+attribute vec3 aPos; attribute vec3 bPos; attribute vec3 cPos; attribute vec3 dPos; attribute float seed;
+uniform float uP, uQ, uR, uDpr;
+varying float vA; varying float vT; varying float vH; varying float vS; varying float vR;
+void main(){
+  float d = seed*0.38;
+  float t = clamp((uP - d)/0.60, 0.0, 1.0); t = t*t*(3.0-2.0*t);
+  float s = clamp((uQ - d)/0.60, 0.0, 1.0); s = s*s*(3.0-2.0*s);
+  float r = clamp((uR - d)/0.60, 0.0, 1.0); r = r*r*(3.0-2.0*r);
+  /* the spread, then each word in turn */
+  vec3 p = mix(mix(mix(aPos, bPos, t), cPos, s), dPos, r);
+  /* Three morphs, three bursts, and they must never add: each one has to be
+     spent before the next opens or the displacement stacks and the last word
+     never closes up. They also cannot share an amplitude. The first travels
+     from a cloud that is already wide, so a big throw reads as the cloud
+     gathering. The later two start from a word that is compact and centred,
+     so the same throw sends every point radially out from the middle and the
+     frame fills edge to edge. A word turning into another word is a short
+     trip and wants a short throw. */
+  float b1 = sin(t*3.14159)*(1.0-s);
+  float b2 = sin(s*3.14159)*0.30*(1.0-r);
+  float b3 = sin(r*3.14159)*0.30;
+  float burst = max(max(b1,b2),b3);
+  vec3 n = normalize(p+0.001);
+  vec3 tg = normalize(cross(n, vec3(0.0,1.0,0.0))+0.0001);
+  float sw = seed*6.2831;
+  p += n*burst*(1.3+seed*2.1);
+  p += tg*burst*sin(sw+(uP+uQ+uR)*5.0)*(0.8+seed*1.4);
+  p += cross(n,tg)*burst*cos(sw+(uP+uQ+uR)*4.0)*(0.6+seed*1.1);
+  /* high whenever the points are sitting on a word, low while they are in
+     the air between two of them, so all three arrivals read as arrivals */
+  float form = max(max(t*(1.0-s), s*(1.0-r)), r);
+  vT = form; vH = seed;
+  /* the two morph positions, so the fragment stage knows which word it is
+     currently spelling and can colour it accordingly */
+  vS = s; vR = r;
+  vA = smoothstep(0.0, 0.08, uP) * (0.34 + 0.60*form) * (1.0 - burst*0.30);
+  vec4 mv = modelViewMatrix*vec4(p,1.0);
+  #ifdef HALO
+    gl_PointSize = (7.0+seed*7.0)*uDpr*(9.5/-mv.z);
+  #else
+    gl_PointSize = (1.9+seed*2.0)*uDpr*(9.5/-mv.z);
+  #endif
+  gl_Position = projectionMatrix*mv;
+}`
+  const FS = `
+varying float vA; varying float vT; varying float vH; varying float vS; varying float vR;
+void main(){
+  vec2 d = gl_PointCoord-0.5;
+  float r2 = dot(d,d);
+  if(r2>0.25) discard;
+  float soft = smoothstep(0.25,0.0,r2);
+  vec3 ink=vec3(0.078,0.098,0.098), sea=vec3(0.055,0.420,0.376);
+  vec3 foam=vec3(0.498,0.839,0.780), sun=vec3(0.878,0.400,0.165);
+
+  /* One colour per beat, and the arc runs cold, hot, cool.
+
+     IDEA is ink. It is a thought and it is worth nothing yet, and everything
+     starts as ink on paper. EXECUTION is the deep end of the page's low sun:
+     this is the one stretch where heat goes in, and the palette says so.
+     Body sits on sun-deep rather than full sun because sixty thousand
+     separated points cover far less ground than solid type and the lighter
+     orange does not hold against the page; the full sun is kept for the
+     sparks. OUTPUT is sea, which the tokens define as the colour for data,
+     and a result is the part someone else can check. */
+  vec3 cIdea = vec3(0.043,0.047,0.047);
+  vec3 cExec = vec3(0.690,0.290,0.094);
+  vec3 cOut  = sea;
+  vec3 word = mix(mix(cIdea, cExec, vS), cOut, vR);
+
+  /* The highlight and the rare spark move with the word. They have to stay
+     inside their beat's own family: a foam glint scattered over an orange
+     word does not read as a highlight, it reads as dirt on the lens. Each
+     beat therefore gets a lighter and a warmer version of itself rather than
+     borrowing the next beat's accent. */
+  vec3 hiIdea = vec3(0.42,0.45,0.44);   // graphite
+  vec3 hiExec = sun;                    // full low sun over the deep body
+  vec3 hiOut  = foam;
+  vec3 spIdea = sun;                    // one warm glint in the grey
+  vec3 spExec = vec3(0.98,0.85,0.72);   // pale ember, still warm
+  vec3 spOut  = sun;
+  vec3 hi = mix(mix(hiIdea, hiExec, vS), hiOut, vR);
+  vec3 sp = mix(mix(spIdea, spExec, vS), spOut, vR);
+
+  vec3 col = mix(ink, word, clamp(vT*1.5,0.0,1.0));
+  col = mix(col, hi, clamp((vH-0.45)*1.5,0.0,1.0)*vT);
+  col = mix(col, sp, step(0.965,vH)*vT*0.8);
+  #ifdef HALO
+    gl_FragColor = vec4(col, vA*soft*0.085);
+  #else
+    gl_FragColor = vec4(col, vA*soft);
+  #endif
+}`
+  const core = new THREE.ShaderMaterial({ uniforms: ptU, transparent: true, depthWrite: false, vertexShader: VS, fragmentShader: FS })
+  const halo = new THREE.ShaderMaterial({ uniforms: ptU, transparent: true, depthWrite: false, vertexShader: VS, fragmentShader: FS, defines: { HALO: 1 } })
+
+  /* The halo was drawing every point at up to fourteen pixels across, which
+     is roughly forty times the fill of the core pass and was the real frame
+     cost, not the raymarch. One point in six carries the glow just as well,
+     because a halo is a low frequency thing by definition. */
+  const hn = Math.floor(N / HALO_EVERY)
+  const hg = new THREE.BufferGeometry()
+  ;['aPos', 'bPos', 'cPos', 'dPos'].forEach((k) => {
+    const src = pg.attributes[k].array, dst = new Float32Array(hn * 3)
+    for (let i = 0; i < hn; i++) {
+      const j = i * HALO_EVERY
+      dst[i * 3] = src[j * 3]; dst[i * 3 + 1] = src[j * 3 + 1]; dst[i * 3 + 2] = src[j * 3 + 2]
+    }
+    hg.setAttribute(k, new THREE.BufferAttribute(dst, 3))
+  })
+  {
+    const src = pg.attributes.seed.array, dst = new Float32Array(hn)
+    for (let i = 0; i < hn; i++) dst[i] = src[i * HALO_EVERY]
+    hg.setAttribute('seed', new THREE.BufferAttribute(dst, 1))
+    hg.setAttribute('position', new THREE.BufferAttribute(new Float32Array(hn * 3), 3))
+  }
+  ptScene.add(new THREE.Points(hg, halo))
+  ptScene.add(new THREE.Points(pg, core))
+
+  /* ---------- words into point targets ---------- */
+  function wordPoints(word, buf, attr) {
+    const W = 1400, H = 260
+    const c = document.createElement('canvas'); c.width = W; c.height = H
+    const x = c.getContext('2d')
+    x.fillStyle = '#000'
+    let fs = 190
+    const set = () => { x.font = `700 ${fs}px "Geist", -apple-system, Helvetica, sans-serif` }
+    set(); while (x.measureText(word).width > W - 40 && fs > 40) { fs -= 4; set() }
+    x.textAlign = 'center'; x.textBaseline = 'middle'
+    x.fillText(word, W / 2, H / 2)
+    const d = x.getImageData(0, 0, W, H).data
+    /* every second row and column is enough at this point count, and it
+       turns a 364,000 pixel walk that blocked a frame for 624ms into a
+       91,000 pixel one */
+    const hits = []
+    for (let py = 0; py < H; py += 2) for (let px = 0; px < W; px += 2) if (d[(py * W + px) * 4 + 3] > 128) hits.push(px, py)
+    const n = hits.length / 2
+    if (!n) return
+    const arr = pg.attributes[attr].array
+    for (let i = 0; i < N; i++) {
+      const k = ((Math.random() * n) | 0) * 2
+      arr[i * 3] = (hits[k] / W - .5) * 10.2 + (Math.random() - .5) * 0.045
+      arr[i * 3 + 1] = -(hits[k + 1] / H - .5) * 1.9 + (Math.random() - .5) * 0.045
+      arr[i * 3 + 2] = (Math.random() - .5) * 0.5
+    }
+    pg.attributes[attr].needsUpdate = true
+    const hb = hg.attributes[attr].array
+    for (let i = 0; i < hn; i++) {
+      const j = i * HALO_EVERY
+      hb[i * 3] = arr[j * 3]; hb[i * 3 + 1] = arr[j * 3 + 1]; hb[i * 3 + 2] = arr[j * 3 + 2]
+    }
+    hg.attributes[attr].needsUpdate = true
+  }
+
+  let words = WORDS.slice()
+  const chips = [...section.querySelectorAll('.turn-state .st')]
+  function buildWords() {
+    wordPoints(words[0], to, 'bPos')
+    wordPoints(words[1], to2, 'cPos')
+    wordPoints(words[2], to3, 'dPos')
+    /* the counter names the beats, so it has to say the same thing */
+    chips.forEach((c, i) => { if (i > 0 && words[i - 1]) c.lastChild.textContent = words[i - 1] })
+  }
+
+  /* ---------- layout ---------- */
+  function fit() {
+    const w = canvas.clientWidth, h = canvas.clientHeight
+    if (!w || !h) return
+    R.setSize(w, h, false)
+    const dpr = R.getPixelRatio()
+    tunU.uRes.value.set(Math.max(2, w * dpr), Math.max(2, h * dpr))
+    ptCam.aspect = w / h
+
+    /* stand back far enough that the whole word is inside the frame with a
+       margin. Point size carries the same 1/z term, so pulling back scales
+       the grain with the type rather than leaving coarse dots on a small
+       word. */
+    ptCam.position.z = Math.max(10.4, (WORD_HALF * 1.10) / (V_HALF * ptCam.aspect))
+
+    /* In portrait the type stacks into the lower two thirds and the word,
+       centred, lands on top of the display line. Lifting the camera puts the
+       word in the clear upper half, which is also the natural reading order
+       on a phone: the object, then what it is called. */
+    /* Lifted on desktop too now. The foot of the frame carries two panes
+       about 260px tall, and a word centred in the frame put its lower half
+       behind them. Negative y raises the scene: 1.15 in portrait where the
+       type stacks under the word, 0.55 in landscape where it only needs to
+       clear the band. */
+    ptCam.position.y = ptCam.aspect < 0.95 ? -1.9 : -0.95
+
+    ptCam.updateProjectionMatrix()
+    draw()
+  }
+
+  /* ---------- the frame ---------- */
+  /* passage and idea both sit in ink: nothing has been spent yet */
+  const BEAT_C = ['var(--ink)', 'var(--ink)', 'var(--sun-deep)', 'var(--sea-1)']
+
+  /* ---------- the band at the foot ----------
+     Everything here is per beat: the line, the paragraph, the drawn mark and
+     the three facts. The rule under them is cut from the same W constants
+     the particles are driven by, so it is a picture of the section's real
+     rhythm rather than three equal thirds. */
+  const BAND = [
+    {
+      key: 'IDEA', c: 'var(--ink)',
+      line: { en: 'Everyone already has these.', ko: '이건 이미 누구나 갖고 있다.' },
+      cap: {
+        en: 'An idea costs nothing and proves nothing. It is the cheapest part of the work, and the part people mistake for the work.',
+        ko: '아이디어는 비용이 들지 않고 아무것도 증명하지 않습니다. 가장 싼 부분이고, 사람들이 일 그 자체로 착각하는 부분입니다.',
+      },
+      rows: [
+        [{ en: 'Cost', ko: '비용' }, { en: 'None', ko: '없음' }],
+        [{ en: 'Proof', ko: '증명' }, { en: 'None', ko: '없음' }],
+        [{ en: 'Held by', ko: '보유' }, { en: 'Everyone', ko: '누구나' }],
+      ],
+      mark: `<svg viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-width="1.2">
+        <circle cx="30" cy="30" r="3.6" fill="currentColor" stroke="none"/>
+        <circle cx="30" cy="30" r="12" opacity=".4"/><circle cx="30" cy="30" r="21" opacity=".2"/>
+        <circle cx="30" cy="30" r="29" opacity=".1"/></svg>`,
+    },
+    {
+      key: 'EXECUTION', c: 'var(--sun-deep)',
+      line: { en: 'This is the part that costs.', ko: '값을 치르는 건 여기다.' },
+      cap: {
+        en: 'Years of shipping code, then the move to the side of the table where the terms get written. Same problem, read from the other seat.',
+        ko: '수년간 코드를 내보냈고, 그다음 조항을 쓰는 자리로 옮겼습니다. 같은 문제를 반대편 좌석에서 읽습니다.',
+      },
+      rows: [
+        [{ en: 'Built', ko: '만든 것' }, { en: 'Full stack, contracts, CI', ko: '풀스택, 컨트랙트, CI' }],
+        [{ en: 'Role', ko: '역할' }, { en: 'Co founder, engineering', ko: '공동창업, 엔지니어링' }],
+        [{ en: 'Now', ko: '현재' }, { en: 'Business side', ko: '사업 쪽' }],
+      ],
+      mark: `<svg viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-width="1.25">${
+        Array.from({ length: 13 }, (_, i) => `<line x1="${5 + i * 4}" y1="52" x2="${14 + i * 4}" y2="8" opacity="${(0.22 + i * 0.06).toFixed(2)}"/>`).join('')
+      }</svg>`,
+    },
+    {
+      key: 'DELIVERED', c: 'var(--sea-1)',
+      line: { en: 'Someone else can check it.', ko: '남이 확인할 수 있다.' },
+      cap: {
+        en: 'The only one of the three that can be verified from outside. An idea is a claim and effort is a story. A delivered thing is neither.',
+        ko: '셋 중 밖에서 검증 가능한 건 이것뿐입니다. 아이디어는 주장이고 노력은 이야기입니다. 나온 물건은 둘 다 아닙니다.',
+      },
+      rows: [
+        [{ en: 'Product', ko: '제품' }, { en: 'Wealthtech, shipped', ko: '웰스테크, 출시' }],
+        [{ en: 'Checkable', ko: '검증' }, { en: 'By anyone', ko: '누구나 가능' }],
+        [{ en: 'Code', ko: '코드' }, { en: 'Not a hobby', ko: '취미가 아님' }],
+      ],
+      mark: `<svg viewBox="0 0 60 60" fill="none" stroke="currentColor" stroke-width="1.25">
+        <rect x="32" y="16" width="24" height="28" rx="2" opacity=".55"/>
+        <line x1="4" y1="30" x2="42" y2="30"/><path d="M34 23l7 7-7 7"/>
+        <line x1="26" y1="14" x2="26" y2="46" opacity=".3" stroke-dasharray="2 4"/></svg>`,
+    },
+  ]
+  const SPAN = [[W1_IN, W1_AT], [W2_IN, W2_AT], [W3_IN, W3_AT]]
+  const both = (o) => `<span data-en>${o.en}</span><span data-ko>${o.ko}</span>`
+
+  const band = section.querySelector('.turn-band')
+  const bLine = band?.querySelector('.tb-line')
+  const bCap = band?.querySelector('.tb-cap')
+  const bName = band?.querySelector('.tb-h b')
+  const bMark = band?.querySelector('.tb-mark')
+  const bCode = band?.querySelector('.tb-code')
+  const bRows = band?.querySelector('.tb-rows')
+  const bPct = band?.querySelector('.tb-pct')
+  const bTrack = band?.querySelector('.tb-track')
+  const bLabels = band?.querySelector('.tb-labels')
+
+  /* the track is laid out once from the real spans: columns are the beats,
+     the gaps between them are the holds, both at their true widths */
+  let segs = [], knobs = [], labels = []
+  if (bTrack && bLabels) {
+    /* Equal thirds. The first cut of this drew each segment as wide as the
+       scroll its beat owns, which made IDEA a third longer than the other
+       two. It was true and it read as a mistake, and a rule that has to be
+       explained has failed as a rule. The fill inside each segment still
+       runs on the beat's real span, so the timing is honest; only the
+       drawing is even. */
+    const cols = []
+    const cells = [], labs = []
+    SPAN.forEach(([a, z], j) => {
+      if (j) {
+        cols.push('16px')
+        cells.push('<span class="tb-hold"></span>'); labs.push('<span></span>')
+      }
+      cols.push('1fr')
+      cells.push(`<div class="tb-seg" style="--sc:${BAND[j].c}"><span class="fill"></span><span class="knob"></span></div>`)
+      labs.push(`<span style="--sc:${BAND[j].c}">${BAND[j].key}</span>`)
+    })
+    bTrack.style.gridTemplateColumns = cols.join(' ')
+    bLabels.style.gridTemplateColumns = cols.join(' ')
+    bTrack.innerHTML = cells.join('')
+    bLabels.innerHTML = labs.join('')
+    segs = [...bTrack.querySelectorAll('.tb-seg')]
+    knobs = segs.map((el) => el.querySelector('.knob'))
+    labels = [...bLabels.querySelectorAll('span')].filter((el) => el.textContent)
+  }
+
+  /* the text is rewritten only when the beat changes. the rule is written
+     every frame, which is a handful of style writes and nothing else. */
+  let bandBeat = -1
+  function setBand(i) {
+    if (!band || i === bandBeat) return
+    bandBeat = i
+    const b = BAND[i]
+    band.style.setProperty('--w-c', b.c)
+    if (bLine) bLine.innerHTML = both(b.line)
+    if (bCap) bCap.innerHTML = both(b.cap)
+    if (bName) bName.textContent = b.key
+    if (bMark) bMark.innerHTML = b.mark
+    if (bCode) bCode.textContent = `B.${String(i + 1).padStart(2, '0')}`
+    if (bRows) bRows.innerHTML = b.rows.map(([k, v]) => `<li><span>${both(k)}</span><b>${both(v)}</b></li>`).join('')
+    segs.forEach((el, j) => el.classList.toggle('on', j === i))
+    labels.forEach((el, j) => { el.classList.toggle('on', j === i); el.classList.toggle('done', j < i) })
+  }
+  function setRule(e) {
+    if (!segs.length) return
+    SPAN.forEach(([a, z], j) => {
+      const w = clamp((e - a) / (z - a), 0, 1) * 100
+      segs[j].querySelector('.fill').style.width = w.toFixed(1) + '%'
+      knobs[j].style.left = w.toFixed(1) + '%'
+    })
+    if (bPct) bPct.innerHTML = `${Math.round(clamp((e - W1_IN) / (W3_AT - W1_IN), 0, 1) * 100)}<s>%</s>`
+  }
+
+  let live = true
+  let last = 0
+
+  function draw() {
+    if (!live) return
+    R.clear()
+    if (tunU.uOut.value < 0.9995) R.render(tunScene, tunCam)
+    if (ptU.uP.value > 0.001) R.render(ptScene, ptCam)
+  }
+
+  function apply(e) {
+    last = e
+    const out = smooth(clamp((e - (ACT1_END - CROSS)) / CROSS, 0, 1))
+    tunU.uZ.value = -Math.min(e, ACT1_END) / ACT1_END * 150.0
+    tunU.uP.value = e
+    tunU.uOut.value = out
+    ptU.uP.value = clamp((e - W1_IN) / (W1_AT - W1_IN), 0, 1)
+    ptU.uQ.value = clamp((e - W2_IN) / (W2_AT - W2_IN), 0, 1)
+    ptU.uR.value = clamp((e - W3_IN) / (W3_AT - W3_IN), 0, 1)
+
+    const beat = ptU.uR.value > 0.5 ? 3 : (ptU.uQ.value > 0.5 ? 2 : (out > 0.5 ? 1 : 0))
+    chips.forEach((c, i) => c.classList.toggle('on', i === beat))
+    /* the active label wears its own beat's colour, so the counter and the
+       word on screen are saying the same thing twice */
+    section.style.setProperty('--beat-c', BEAT_C[beat])
+    /* the corridor beat and IDEA share the first band: the line about ideas
+       is the right thing to be reading on the way in as well as on arrival */
+    setBand(Math.max(0, beat - 1))
+    setRule(e)
+    /* The band belongs to the words, and only to words that have closed.
+       Rising at the beat threshold put it up while the cloud was still in
+       flight, and its top edge cut straight across the burst. So it comes up
+       once a word is settled and holding, and goes back down the moment the
+       points are moving again, so nothing sits in front of the material. */
+    const P = ptU.uP.value, Q = ptU.uQ.value, Rr = ptU.uR.value
+    const settled = (P > 0.85 && Q < 0.10) || (Q > 0.85 && Rr < 0.10) || Rr > 0.85
+    if (band) band.classList.toggle('on', settled)
+    draw()
+  }
+
+  buildWords()
+  /* the word is rasterised from a webfont, so it has to be measured again
+     once that font has actually landed or the points spell the fallback */
+  document.fonts?.ready.then(() => { buildWords(); apply(last) })
+  fit()
+
+  let trigger = null
+  if (!opts.reduce) {
+    trigger = gsap.to({ q: 0 }, {
+      q: 1, ease: 'none',
+      scrollTrigger: { trigger: stage, start: 'top top', end: 'bottom bottom', scrub: 0.4 },
+      onUpdate() { apply(this.targets()[0].q) },
+    })
+    apply(0)
+  } else {
+    /* one representative frame: the last word, already closed up */
+    apply(1)
+  }
+
+  return {
+    start() { live = true; apply(last) },
+    stop() { live = false },
+    /* Motion turned off part way through has to leave something finished on
+       screen. Plain stop() freezes whatever frame happened to be up, which
+       could be the middle of a morph, and then scrolling moves the page under
+       a corridor that no longer answers it. This draws the resolved state
+       once and then holds it. */
+    still() { live = true; apply(1); live = false },
+    setWords(next) { words = next.slice(); buildWords(); apply(last) },
+    resize: fit,
+    progress: () => last,
+    dispose() {
+      live = false
+      trigger?.scrollTrigger?.kill()
+      trigger?.kill()
+      pg.dispose(); hg.dispose()
+      tunMat.dispose(); core.dispose(); halo.dispose()
+      R.dispose()
+    },
+  }
+}

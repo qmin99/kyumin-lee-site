@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en" data-lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>D4 figures · proof sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Recursive:MONO,wght@0..1,300..800&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/src/page.css">
+<style>
+  body { padding: 0 0 120px; }
+  .tbar { position: sticky; top: 0; z-index: 9; display: flex; gap: 18px; align-items: center;
+    padding: 12px 0; background: color-mix(in srgb, var(--sand) 94%, transparent);
+    border-bottom: 1px solid var(--hair); backdrop-filter: blur(8px); margin-bottom: 40px; }
+  .tbar button { font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--dim); background: none; border: 1px solid var(--hair-2);
+    padding: 7px 12px; cursor: pointer; }
+  .tbar button:hover { color: var(--teal); border-color: var(--horizon); }
+  .tslot { padding: clamp(48px, 7vh, 96px) 0; border-bottom: 1px solid var(--hair); }
+  .tslot:last-child { border-bottom: 0; }
+  .tslot > .k { display: block; font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--sun-deep); margin-bottom: 20px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="tbar">
+    <button id="t-lang" type="button">EN / KO</button>
+    <button id="t-motion" type="button">Motion off</button>
+    <span class="k" style="font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--dim)">D4 PROOF SHEET</span>
+  </div>
+
+  <div class="tslot"><span class="k">data-figure="pipeline"</span><div data-figure="pipeline"></div></div>
+  <div class="tslot"><span class="k">data-figure="audit"</span><div data-figure="audit"></div></div>
+  <div class="tslot"><span class="k">data-figure="timeline"</span><div data-figure="timeline"></div></div>
+  <div class="tslot"><span class="k">data-figure="entities"</span><div data-figure="entities"></div></div>
+  <div class="tslot"><span class="k">data-figure="scripts"</span><div data-figure="scripts"></div></div>
+  <div class="tslot"><span class="k">data-figure="revenue"</span><div data-figure="revenue"></div></div>
+  <div class="tslot"><span class="k">data-figure="jurisdictions"</span><div data-figure="jurisdictions"></div></div>
+</div>
+
+<script type="module">
+  import { mountFigures } from '/src/figures.js'
+  mountFigures()
+  const h = document.documentElement
+  document.getElementById('t-lang').addEventListener('click', () => {
+    const next = h.getAttribute('data-lang') === 'ko' ? 'en' : 'ko'
+    h.setAttribute('data-lang', next)
+    h.setAttribute('lang', next)
+  })
+  document.getElementById('t-motion').addEventListener('click', (e) => {
+    h.classList.toggle('no-motion')
+    e.target.textContent = h.classList.contains('no-motion') ? 'Motion on' : 'Motion off'
+  })
+  window.__fig = { mountFigures }
+</script>
+</body>
+</html>

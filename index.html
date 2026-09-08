@@ -1,0 +1,775 @@
+<!doctype html>
+<html lang="en" data-lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kyumin Lee</title>
+<meta name="description" content="Builder on one side. Dealmaker on the other. Cross-border settlement and stablecoin infrastructure across Southeast Asia, and the engineering behind it.">
+<meta name="theme-color" content="#FAFAFA">
+<meta property="og:type" content="profile">
+<meta property="og:title" content="Kyumin Lee">
+<meta property="og:description" content="Builder on one side. Dealmaker on the other. Cross-border settlement and stablecoin infrastructure across Southeast Asia, and the engineering behind it.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="ko_KR">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/favicon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..700&family=Geist:wght@300..700&family=Geist+Mono:wght@300..500&family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=Caveat:wght@500;700&family=Fraunces:opsz,wght@9..144,300..900&family=EB+Garamond:ital,wght@0,400..600;1,400..600&display=swap" rel="stylesheet">
+<!-- Korean. Google serves these split across ~100 unicode-range blocks, and a
+     block is only fetched when a glyph inside it is actually painted. The KO
+     spans are display:none while the page is in English, so an English reader
+     downloads none of this. -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;700&family=Noto+Sans+KR:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/src/page.css">
+</head>
+<body>
+
+<div id="intro" aria-hidden="true">
+  <canvas id="introcv"></canvas>
+  <!-- the cards set up the line the hero then says outright -->
+  <!-- The frame's own instruments. Every value here is a property of the
+       footage rather than a claim about the jump: the timecode and the
+       frame count are true by construction, and the brackets are framing.
+       Nothing asserts an altitude or a speed we cannot stand behind. -->
+  <div class="film-type">
+    <span class="ft-corner ft-tl" aria-hidden="true"></span>
+    <span class="ft-corner ft-tr" aria-hidden="true"></span>
+    <span class="ft-corner ft-bl" aria-hidden="true"></span>
+    <span class="ft-corner ft-br" aria-hidden="true"></span>
+
+    <span class="ft-slug" data-ft="0">KYUMIN LEE</span>
+    <span class="ft-reel" data-ft="1">
+      <b class="ft-tc">00:00:00:00</b>
+      <em class="ft-lbl">TC</em>
+    </span>
+    <span class="ft-meta" data-ft="2">
+      <b>MINNESOTA</b><em>LOC</em>
+    </span>
+    <span class="ft-gauge" data-ft="3" aria-hidden="true"><i></i></span>
+    <span class="ft-cross" aria-hidden="true"></span>
+  </div>
+  <button id="skip"><span data-en>Skip</span><span data-ko>건너뛰기</span></button>
+</div>
+
+<a class="skip-link" href="#s1"><span data-en>Skip to content</span><span data-ko>본문으로 건너뛰기</span></a>
+
+<header class="top">
+  <div class="wrap">
+    <a class="nm" href="#s1"><span data-en>Kyumin Lee</span><span data-ko>이규민</span></a>
+    <nav class="set" aria-label="Utilities">
+      <span class="idx">2026.09.08</span>
+      <a href="#s8" aria-label="Contact"><span data-en>Contact</span><span data-ko>연락</span></a>
+      <a id="cv" href="/cv/Kyumin-Lee-CV-2026-KO.pdf" download
+         aria-label="Resume, PDF, downloads">Resume</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<!-- 01 ────────────────────────────────────────── the horizon, first of three -->
+<section id="s1" aria-label="Introduction">
+  <canvas id="field" aria-hidden="true"></canvas>
+  <!-- the hero object. all keyframe, so a scroll can land anywhere in it -->
+  <div class="hero-film" aria-hidden="true">
+    <video id="scrubfilm" muted playsinline preload="auto" disablepictureinpicture
+           poster="/film/own_01_fall_poster.jpg">
+      <!-- webm first: firefox scrubs mp4 choppily even at one keyframe per
+           frame. ios safari refuses webm, so it falls through to the mp4. -->
+      <source src="/film/hero_scrub.webm" type="video/webm">
+      <source src="/film/hero_scrub.mp4" type="video/mp4">
+    </video>
+  </div>
+
+  <div class="wrap">
+    <p class="eyebrow identity">
+      <span data-en>Kyumin Lee</span>
+      <span data-ko>이규민</span>
+    </p>
+    <h1 class="hero-l"><span data-en>Builder on one side.</span><span data-ko>만드는 쪽에 앉는다.</span></h1>
+  </div>
+
+  <div class="horizon"><hr class="rule" aria-hidden="true" role="presentation"></div>
+
+  <div class="wrap">
+    <p class="hero-r"><span data-en>Dealmaker on the other.</span><span data-ko>파는 쪽에도 앉는다.</span></p>
+  </div>
+
+  <div class="wrap hero-foot">
+    <dl class="hero-meta">
+      <div><dt><span data-en>Based</span><span data-ko>거점</span></dt>
+           <dd><span data-en>Seoul</span><span data-ko>서울</span></dd></div>
+      <div><dt><span data-en>Field</span><span data-ko>분야</span></dt>
+           <dd><span data-en>Blockchain &amp; Fintech infrastructure</span><span data-ko>블록체인 &amp; 핀테크 인프라</span></dd></div>
+      <div><dt><span data-en>Languages</span><span data-ko>언어</span></dt>
+           <dd>KOR &middot; ENG</dd></div>
+    </dl>
+
+    <nav class="hero-index" aria-label="Sections">
+      <a href="#s3"><i>03</i><span data-en>The Journey</span><span data-ko>지나온 길</span></a>
+      
+      <a href="#s5"><i>04</i><span data-en>Service</span><span data-ko>복무</span></a>
+      <a href="#s6b"><i>05</i><span data-en>Academics</span><span data-ko>학업</span></a>
+      <a href="#s6"><i>06</i><span data-en>Off the clock</span><span data-ko>업무 외 활동 </span></a>
+      <a href="#s8"><i>08</i><span data-en>Contact</span><span data-ko>연락</span></a>
+    </nav>
+  </div>
+</section>
+
+<!-- 03 ────────────────────────────────────────── current work. axis right -->
+<!-- ======================================================================
+     03. THE TURN
+
+     One plane, rotated by the scroll through edge on and out the other
+     side. Face A is the packing of source, receding away from you. Face
+     B is the same marks, the same count, repacked as an agreement,
+     advancing toward you. The swap happens in the one frame where the
+     plane has no height. Nothing is added and nothing is discarded.
+     ====================================================================== -->
+<section id="s3" aria-label="The turn" data-overline="TECH BASED BUSINESS DEVELOPMENT" data-overline-dir="ltr">
+  <div class="turn-stage">
+    <div class="turn-frame">
+      <!-- One fullscreen quad. The corridor is a signed distance field, so
+           there is no geometry to tessellate and it stays smooth at any
+           resolution. The points that come out of the far end are the same
+           sixty thousand throughout: nothing is added and nothing is thrown
+           away, they are only read into a different shape three times. -->
+      <canvas id="corridor" aria-hidden="true"></canvas>
+    </div>
+
+    <div class="turn-type">
+      <div class="sec-head turn-head">
+        <span class="n">03</span>
+        <span class="lb"><span data-en data-scramble>The Journey</span><span data-ko>지나온 길</span></span>
+      </div>
+
+      <p class="turn-state" aria-hidden="true">
+        <span class="st on"><i></i>PASSAGE</span>
+        <span class="st"><i></i>IDEA</span>
+        <span class="st"><i></i>EXECUTION</span>
+        <span class="st"><i></i>DELIVERED</span>
+      </p>
+
+      <!-- The foot of the frame. Two panes that stretch to one height and are
+           each full to it: the statement on the left, the line and the
+           paragraph behind it; the instrument on the right, the beat's name,
+           the beat drawn, and three facts. Under both, a rule cut to the
+           section's real rhythm. Everything in here is rewritten per beat by
+           corridor.js. What is in the markup is the last beat, so the section
+           reads correctly when the corridor cannot run. -->
+      <div class="turn-band" style="--w-c:var(--sea-1)">
+        <div class="tb-left">
+          <h2 class="tb-line"><span data-en>Verifiable Online</span><span data-ko>온라인 확인 가능</span></h2>
+          <p class="tb-cap"><span data-en>A vision imagined, an effort made, a reality delivered. The final product speaks for itself.</span><span data-ko>셋 중 밖에서 검증 가능한 건 이것뿐입니다. 아이디어는 주장이고 노력은 이야기입니다. 나온 물건은 둘 다 아닙니다.</span></p>
+        </div>
+        <div class="tb-card">
+          <p class="tb-h"><b>DELIVERED</b></p>
+          <figure class="tb-plate" aria-hidden="true">
+            <span class="tb-scale"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+            <span class="tb-corner tl"></span><span class="tb-corner tr"></span>
+            <span class="tb-corner bl"></span><span class="tb-corner br"></span>
+            <span class="tb-mark"></span>
+            <span class="tb-code">B.03</span>
+          </figure>
+          <ul class="tb-rows">
+            <li><span><span data-en>Output</span><span data-ko>산출</span></span><b><span data-en>Tangible solutions</span><span data-ko>실체 있는 해법</span></b></li>
+            <li><span><span data-en>Validation</span><span data-ko>검증</span></span><b><span data-en>Publicly verifiable</span><span data-ko>공개 검증 가능</span></b></li>
+            <li><span><span data-en>Quality</span><span data-ko>품질</span></span><b><span data-en>Built for impact</span><span data-ko>영향을 위한 설계</span></b></li>
+          </ul>
+        </div>
+        <div class="tb-foot" aria-hidden="true">
+          <div class="tb-rhythm">
+            <div class="tb-top"><span class="tb-pct">100<s>%</s></span></div>
+            <div class="tb-track"></div>
+            <div class="tb-labels"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div class="wrap grid">
+    <div class="build">
+      <!-- The panel is always open now, so the plus that used to toggle it is
+           gone: a control that does nothing is worse than no control. What is
+           left is a header that says what the list is and how long it is, on
+           the same hairline the section heads use. -->
+      <div class="work-head">
+        <span class="wh-lb"><span data-en>Projects</span><span data-ko>프로젝트</span></span>
+        <i class="wh-rule" aria-hidden="true"></i>
+        <span class="wh-n" aria-hidden="true">04</span>
+      </div>
+    </div>
+  </div>
+  <div class="wrap grid">
+    <!-- 04 runs in two columns. The work half is one document in a case and
+         takes the narrow side; the personal half is a list that has to be
+         read, so it keeps the width. No rule between them. -->
+    <div class="wp-split">
+      <div class="wp-col wp-work">
+        <div class="col-h"><b><span data-en>Work projects</span><span data-ko>일 프로젝트</span></b><i><span data-en>In one file</span><span data-ko>파일 하나에</span></i></div>
+        <div class="case-stage">
+          <div class="case-rig">
+            <a class="case-obj" href="/cv/Kyumin-Lee-Portfolio-2026.pdf" download aria-label="Download the portfolio, PDF, 13 MB">
+              <i class="case-cone"></i><i class="case-pool"></i><i class="case-cast"></i><i class="case-box"></i>
+              <div class="case-frame"><div class="case-mat"><div class="case-sheet"><div class="case-pad"><div class="case-top"><span class="case-brand">Kyumin Lee</span><span class="case-yr">2026</span></div><div class="case-h">Portfolio</div><div class="case-rule"></div><div class="case-cols"><div><i style="width:100%"></i><i style="width:92%"></i><i style="width:97%"></i><i style="width:64%"></i></div><div><i style="width:96%"></i><i style="width:100%"></i><i style="width:78%"></i><i style="width:88%"></i></div></div><div class="case-fig">Fig. 1</div><div class="case-plate"></div><div class="case-cap"><i style="width:70%"></i><i style="width:46%"></i></div><div class="case-strip"><b></b><b></b><b></b></div></div><div class="case-foot"><b>K. Lee</b><em>01</em></div></div></div><i class="case-glass"></i></div>
+            </a>
+          </div>
+        </div>
+        <div class="dl">
+          <a class="dl-btn" href="/cv/Kyumin-Lee-Portfolio-2026.pdf" download><span class="dl-ico"><svg viewBox="0 0 11 15" class="a" aria-hidden="true"><path d="M5.5 0v13"/><path d="M.9 8.6l4.6 4.6 4.6-4.6"/></svg><svg viewBox="0 0 11 15" class="b" aria-hidden="true"><path d="M5.5 0v13"/><path d="M.9 8.6l4.6 4.6 4.6-4.6"/></svg></span><span><span data-en>Download portfolio</span><span data-ko>포트폴리오 내려받기</span></span></a>
+          <span class="dl-m"><a href="/cv/Kyumin-Lee-Portfolio-2026.pdf" download><span data-en>PDF &middot; 13 MB &middot; 12 pages</span><span data-ko>PDF &middot; 13 MB &middot; 12쪽</span></a></span>
+        </div>
+      </div>
+      <div class="wp-col wp-personal">
+        <div class="col-h"><b><span data-en>Personal projects</span><span data-ko>개인 프로젝트</span></b><i><span data-en>Four</span><span data-ko>네 개</span></i></div>
+        <ul id="workPanel" class="workpanel">
+      <li class="wp-item">
+        <span class="wp-n">01</span>
+        <a class="wp-thumb" href="https://class-note-material.netlify.app/" target="_blank" rel="noopener" aria-label="ClassNote, live site, opens in a new tab"><span><img src="/shots/classnote.jpg" alt="" width="640" height="400" loading="lazy" decoding="async"></span></a>
+        <div class="wp-body">
+          <h3 class="wp-t">ClassNote</h3>
+          <p class="wp-d"><span data-en>A record keeping tool written for teaching. Still being committed to.</span><span data-ko>수업용으로 쓴 기록 도구. 지금도 커밋 중입니다.</span></p>
+          <p class="wp-l"><a href="https://github.com/qmin99/ClassNote" target="_blank" rel="noopener" aria-label="ClassNote on GitHub, opens in a new tab"><span data-en>GitHub</span><span data-ko>GitHub</span></a><span class="sep" aria-hidden="true">&middot;</span><a href="https://class-note-material.netlify.app/" target="_blank" rel="noopener" aria-label="ClassNote, the live site, opens in a new tab"><span data-en>Live</span><span data-ko>라이브</span></a></p>
+        </div>
+      </li>
+      <li class="wp-item">
+        <span class="wp-n">02</span>
+        <a class="wp-thumb" href="https://24fc.netlify.app/" target="_blank" rel="noopener" aria-label="24HD Website, live site, opens in a new tab"><span><img src="/shots/24fc.jpg" alt="" width="640" height="400" loading="lazy" decoding="async"></span></a>
+        <div class="wp-body">
+          <h3 class="wp-t">24HD Website</h3>
+          <p class="wp-d"><span data-en>The football club's own site. Fixtures, squad and sign ups in one place, for a team that had been running on a group chat.</span><span data-ko>축구 클럽 사이트. 일정과 스쿼드와 신청을 한 군데로. 단톡방으로 굴러가던 팀을 위해.</span></p>
+          <p class="wp-l"><a href="https://github.com/qmin99/24_Website" target="_blank" rel="noopener" aria-label="24HD Website on GitHub, opens in a new tab"><span data-en>GitHub</span><span data-ko>GitHub</span></a><span class="sep" aria-hidden="true">&middot;</span><a href="https://24fc.netlify.app/" target="_blank" rel="noopener" aria-label="24HD Website, the live site, opens in a new tab"><span data-en>Live</span><span data-ko>라이브</span></a></p>
+        </div>
+      </li>
+      <li class="wp-item">
+        <span class="wp-n">03</span>
+        <a class="wp-thumb" href="https://kyumin-lee.netlify.app/" target="_blank" rel="noopener" aria-label="This site, live, opens in a new tab"><span><img src="/shots/kyuminlee.jpg" alt="" width="640" height="400" loading="lazy" decoding="async"></span></a>
+        <div class="wp-body">
+          <h3 class="wp-t">kyumin-lee-site</h3>
+          <p class="wp-d"><span data-en>This site. Written from scratch and built on Vite, with GSAP driving the arrivals and a WebGL horizon between the chapters.</span><span data-ko>지금 보고 계신 사이트. 처음부터 직접 썼고 Vite로 빌드합니다. 등장은 GSAP, 장 사이의 수평선은 WebGL입니다.</span></p>
+          <p class="wp-l"><a href="https://github.com/qmin99/kyumin-lee-site" target="_blank" rel="noopener" aria-label="This site on GitHub, opens in a new tab"><span data-en>GitHub</span><span data-ko>GitHub</span></a><span class="sep" aria-hidden="true">&middot;</span><a href="https://kyumin-lee.netlify.app/" target="_blank" rel="noopener" aria-label="Kyumin-Lee-Website, the live site, opens in a new tab"><span data-en>Live</span><span data-ko>라이브</span></a></p>
+        </div>
+      </li>
+      <li class="wp-item">
+        <span class="wp-n">04</span>
+        <a class="wp-thumb" href="https://www.youtube.com/@quality-77" target="_blank" rel="noopener" aria-label="Generative AI Artwork Channel on YouTube, opens in a new tab"><span><img src="/shots/ai.jpg" alt="" width="640" height="400" loading="lazy" decoding="async"></span></a>
+        <div class="wp-body">
+          <h3 class="wp-t">Generative AI Artwork Channel</h3>
+          <p class="wp-d"><span data-en>AI images, animations, and real life to AI transition sequences. Running since January 2023.</span><span data-ko>AI 이미지와 애니메이션, 실사에서 AI로 넘어가는 전환 시퀀스. 2023년 1월부터.</span></p>
+          <p class="wp-l"><a href="https://www.youtube.com/@quality-77" target="_blank" rel="noopener" aria-label="The channel on YouTube, opens in a new tab, opens in a new tab"><span data-en>YouTube</span><span data-ko>유튜브</span></a></p>
+        </div>
+      </li>
+          <li class="wp-item wp-more">
+            <span class="wp-n">&nbsp;</span>
+            <div class="wp-body">
+              <p class="wp-d">
+                <span data-en>The rest is on the profile.</span><span data-ko>나머지는 프로필에 있습니다.</span>
+                <a href="https://github.com/qmin99" target="_blank" rel="noopener"
+                   aria-label="GitHub profile, opens in a new tab">github.com/qmin99</a>
+              </p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  </section>
+
+<!-- 04 ────────────────────────────────────────── capability. the axis flips left -->
+
+
+
+
+<!-- 06 ────────────────────────────────────────── the surface, second of three. under it, the stage -->
+
+<!-- ── the water. a real band, full bleed ────────────────────────── -->
+<!-- The sea used to begin at an edge: paper, then a rectangle of water. The
+     band is pulled up under the end of 04 and comes up through a developer:
+     the page's own ground lies over the sea and lifts off it as you scroll,
+     so the horizon clears first and the water fills in under it. Two words
+     say which water this is. Swap t1 on the band for t2, t3 or t4 to change
+     the treatment. -->
+<div class="waterband t1">
+  <canvas id="watercv" aria-hidden="true"></canvas>
+  <i class="wb-dev" aria-hidden="true"></i>
+  <i class="wb-veil" aria-hidden="true"></i>
+  <i class="wb-wet" aria-hidden="true"></i>
+  <p class="wb-cap"><i aria-hidden="true"></i><span data-en>West Sea &middot; looking back</span><span data-ko>서해 &middot; 돌아보며</span></p>
+</div>
+<!-- 05 ────────────────────────────────────────── service -->
+<section id="s5" aria-label="Service" data-overline="REPUBLIC OF KOREA MARINE CORPS" data-overline-dir="ltr" data-invert>
+  <div class="wrap grid">
+    <div class="sec-head rail-l">
+      <span class="n">04</span>
+      <span class="lb"><span data-en data-scramble>Service</span><span data-ko>복무</span></span>
+    </div>
+    <!-- The head's twin. Built from the same markup so its rule is the same
+         length and its label sits on the same line: the period where the
+         number is, the length of it where the label is. The two frame what
+         stands between them. -->
+    <div class="sec-head twin" aria-hidden="true">
+      <span class="n">2021.06 → 2022.12</span>
+      <span class="lb"><span data-en>Discharged as Sergeant</span><span data-ko>병장 전역</span></span>
+    </div>
+
+    <div class="build" data-reveal>
+      <!-- the seal above its type: a lockup with no left and no right -->
+      <div class="lockup">
+        <img class="lockup-seal" data-proximity src="/marks/rokmc-ega.svg" alt="" width="220" height="227" loading="lazy" decoding="async">
+        <span class="lockup-bar" aria-hidden="true"></span>
+        <span class="lockup-type">
+          <span class="lockup-1">REPUBLIC OF KOREA</span>
+          <span class="lockup-2">MARINE CORPS</span>
+          <span class="lockup-3">대한민국 해병대 &middot; 백령도</span>
+        </span>
+      </div>
+      <!-- two tiers: the fact in the display grotesque, the qualifier under it
+           in the serif italic. Korean reads place first, so its small line
+           goes above and 18개월 is the big one. -->
+      <h2 class="big-line">
+        <span data-en><span class="t1">Eighteen months</span><span class="t2">on the northern line.</span></span>
+        <span data-ko><span class="t2">북방한계선에서</span><span class="t1">18개월.</span></span>
+      </h2>
+      <!-- 兵 1271期 and the tag, worn together. The corps writes an enlisted
+           class in hanja, 兵 for the intake, 期 for the class; 병 1271기 enlisted
+           28 June 2021 and was discharged 27 December 2022. The class patch is
+           cut open in gold because the crimson is a field in one place only. -->
+      <p class="idline">
+        <span class="klasstag" aria-label="병 1271기"><span class="h">兵</span><span class="n">1271</span><span class="h">期</span></span>
+        <span class="nametag" aria-hidden="true">이규민</span>
+      </p>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <!-- Six cells of one size and one mount, three by two. The photographs
+         take the corners, the map and the record take the centre column, so
+         the axis the opener set runs down the middle and the balance is a
+         property of the grid. Every cell carries the same caption bar. -->
+    <div class="plate-row m6" data-reveal>
+      <figure class="plate cell">
+        <div class="win"><picture>
+          <source type="image/avif" srcset="/plates/rokmc_squad_540.avif 540w, /plates/rokmc_squad_810.avif 810w, /plates/rokmc_squad_1080.avif 1080w" sizes="(max-width: 900px) 92vw, 46vw">
+          <source type="image/webp" srcset="/plates/rokmc_squad_540.webp 540w, /plates/rokmc_squad_810.webp 810w, /plates/rokmc_squad_1080.webp 1080w" sizes="(max-width: 900px) 92vw, 46vw">
+          <img class="pl" src="/plates/rokmc_squad_810.jpg" srcset="/plates/rokmc_squad_540.jpg 540w, /plates/rokmc_squad_810.jpg 810w, /plates/rokmc_squad_1080.jpg 1080w" sizes="(max-width: 900px) 92vw, 46vw"
+               width="1080" height="720" loading="lazy" decoding="async"
+               style="background-image:url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QBMRXhpZgAATU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAGKADAAQAAAABAAAAEAAAAAD/7QA4UGhvdG9zaG9wIDMuMAA4QklNBAQAAAAAAAA4QklNBCUAAAAAABDUHYzZjwCyBOmACZjs+EJ+/8AAEQgAEAAYAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/bAEMACQkJCQkJEAkJEBYQEBAWHhYWFhYeJh4eHh4eJi4mJiYmJiYuLi4uLi4uLjc3Nzc3N0BAQEBASEhISEhISEhISP/bAEMBCwwMEhESHxERH0szKjNLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS//dAAQAAv/aAAwDAQACEQMRAD8AWbxHcTMUa2Hy9mbnPHt6kVCNcKyFJbPnOAA3f8vSobnRtdOZFsoi+VH3s5H8Wc9+1Um0zXElZjZH5pNwUtkYGPfr15qVja3SX5HesPgnFc0Nfn/mXJ/Ek20CK0Rfqc/XpVT/AISS4/59k/8AHqrnQ9YCPi2yQV2HrgcZAH51H/Yuuf8APBv++V/xo+uVf5jGWEwsndXXyP/Z')"
+               alt="A Marine Corps squad in red physical training uniform, seated outdoors on Baengnyeongdo under an open sky, August 2022.">
+        </picture></div>
+        <figcaption><span class="pl-n">01</span><span class="pl-t"><span data-en>Baengnyeongdo</span><span data-ko>백령도</span></span><span class="pl-d">2022.08</span></figcaption>
+      </figure>
+      <figure class="plate cell map">
+        <div class="win">
+      <div class="locator-frame">
+            <img class="loc-wide" src="/marks/nw_border.svg" alt="" width="1000" height="634" loading="lazy" decoding="async">
+            <span class="loc-n" aria-hidden="true">N</span>
+            <span class="loc-lbl loc-lbl-kp" aria-hidden="true">DPRK</span>
+            <span class="loc-lbl loc-lbl-kr" aria-hidden="true">ROK</span>
+          </div>
+        </div>
+        <figcaption><span class="pl-n">NLL</span><span class="pl-t"><span data-en>Baengnyeongdo</span><span data-ko>백령도</span></span><span class="pl-d">37°58′N 124°41′E</span></figcaption>
+      </figure>
+      <figure class="plate cell">
+        <div class="win"><picture>
+          <source type="image/avif" srcset="/plates/rokmc_hq_540.avif 540w, /plates/rokmc_hq_810.avif 810w, /plates/rokmc_hq_1080.avif 1080w" sizes="(max-width: 900px) 92vw, 46vw">
+          <source type="image/webp" srcset="/plates/rokmc_hq_540.webp 540w, /plates/rokmc_hq_810.webp 810w, /plates/rokmc_hq_1080.webp 1080w" sizes="(max-width: 900px) 92vw, 46vw">
+          <img class="pl" src="/plates/rokmc_hq_810.jpg" srcset="/plates/rokmc_hq_540.jpg 540w, /plates/rokmc_hq_810.jpg 810w, /plates/rokmc_hq_1080.jpg 1080w" sizes="(max-width: 900px) 92vw, 46vw"
+               width="1080" height="720" loading="lazy" decoding="async"
+               style="background-image:url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QBMRXhpZgAATU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAGKADAAQAAAABAAAAEAAAAAD/7QA4UGhvdG9zaG9wIDMuMAA4QklNBAQAAAAAAAA4QklNBCUAAAAAABDUHYzZjwCyBOmACZjs+EJ+/8AAEQgAEAAYAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/bAEMACQkJCQkJEAkJEBYQEBAWHhYWFhYeJh4eHh4eJi4mJiYmJiYuLi4uLi4uLjc3Nzc3N0BAQEBASEhISEhISEhISP/bAEMBCwwMEhESHxERH0szKjNLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS//dAAQAAv/aAAwDAQACEQMRAD8A15dXgjYQ3AkC7Ad7g7M98kof5VC2uWe8bJN4ViRgjoeB1UVe8S/6ZYrZKcs7gjPbH4++K88XQmhtPMkVvMDj14XGMfrSKO1urzSDGLi8aFmK4BcIzZz+f9Kzft+g+kP/AH7T/GtjwukUOmlXVdzSNkHkccDGfaulzD/cj/If4UhWP//Z')"
+               alt="Six Marines outside the Education and Training Group headquarters, the corps insignia mounted on the facade above them, April 2022.">
+        </picture></div>
+        <figcaption><span class="pl-n">02</span><span class="pl-t"><span data-en>Education and Training Group</span><span data-ko>교육훈련단</span></span><span class="pl-d">2022.04</span></figcaption>
+      </figure>
+      <figure class="plate cell">
+        <div class="win"><picture>
+          <source type="image/avif" srcset="/plates/rokmc_barracks_540.avif 540w, /plates/rokmc_barracks_810.avif 810w, /plates/rokmc_barracks_1080.avif 1080w" sizes="(max-width: 900px) 92vw, 42vw">
+          <source type="image/webp" srcset="/plates/rokmc_barracks_540.webp 540w, /plates/rokmc_barracks_810.webp 810w, /plates/rokmc_barracks_1080.webp 1080w" sizes="(max-width: 900px) 92vw, 42vw">
+          <img class="pl" src="/plates/rokmc_barracks_810.jpg" srcset="/plates/rokmc_barracks_540.jpg 540w, /plates/rokmc_barracks_810.jpg 810w, /plates/rokmc_barracks_1080.jpg 1080w" sizes="(max-width: 900px) 92vw, 42vw"
+               width="1496" height="1122" loading="lazy" decoding="async"
+               style="background-image:url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QBMRXhpZgAATU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAGKADAAQAAAABAAAAEgAAAAD/7QA4UGhvdG9zaG9wIDMuMAA4QklNBAQAAAAAAAA4QklNBCUAAAAAABDUHYzZjwCyBOmACZjs+EJ+/8AAEQgAEgAYAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/bAEMACQkJCQkJEAkJEBYQEBAWHhYWFhYeJh4eHh4eJi4mJiYmJiYuLi4uLi4uLjc3Nzc3N0BAQEBASEhISEhISEhISP/bAEMBCwwMEhESHxERH0szKjNLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS//dAAQAAv/aAAwDAQACEQMRAD8A0hqF7aQ4ubfzeDlg6rjH4nrVH+1InjW9EZ+Y4KBxkf0rJ1SfVBdpEAIYeF3PggbjjJJ6ZpC2nKpJc+cmBlGBQngAk4wpPA9MVDkaRjs2as97dagjJp0Xl87RlwSTwOD+PNUf7K8Ve/8A30KpWi3D6tHDNHhbck+ZHg7sgf3eScY6c12m+L1uP++ZaasJ7n//0MfWmIEgB/5aKfyFRaUqs7xsAVaRgQehGwdak1vpJ/vr/IU3SP8AXH/rq3/oArlh/DRdLdGFKTDqB8n5Nspxt4x9MVpfbbz/AJ7Sf99H/Gsy6/5CD/8AXU1aolufRYb+Gvl+R//Z')" alt="A barracks room full of Marines posing for a group photograph, September 2022.">
+        </picture></div>
+        <figcaption><span class="pl-n">03</span><span class="pl-t"><span data-en>Barracks</span><span data-ko>생활관</span></span><span class="pl-d">2022.09</span></figcaption>
+      </figure>
+      <!-- a cell, not a plate: the site hides any plate that has no photograph -->
+      <div class="cell rec">
+        <div class="win">
+          <p class="cap">
+            <span data-en>Infantry, Republic of Korea Marine Corps. Eighteen months on the northwest border area, on the closest inhabited island to the line.</span>
+            <span data-ko>대한민국 해병대 보병. 서북도서에서 18개월. 경계선에 가장 가까운 유인도에서.</span>
+          </p>
+          <div class="lines">
+            <p class="data">
+              <b class="d-role"><span data-en>Infantry</span><span data-ko>보병</span></b>
+              <span data-en>June 2021 to December 2022. Situational guard duty, and the computing and technical communication that came with it.</span>
+              <span data-ko>2021.06 부터 2022.12 까지. 상황 근무, 그리고 거기 딸린 전산과 기술 소통.</span>
+            </p>
+            <p class="data">
+              <b class="d-role"><span data-en>G2 interpreter</span><span data-ko>정보처 통역</span></b>
+              <span data-en>April to May 2022. Combined Command Post Training, between the US and ROK forces, live.</span>
+              <span data-ko>2022.04 부터 05 까지. 연합지휘소훈련에서 한미 양군 사이, 실시간으로.</span>
+            </p>
+          </div>
+        </div>
+        <p class="cbar"><span class="pl-n">REC</span><span class="pl-t"><span data-en>Service record</span><span data-ko>복무 기록</span></span><span class="pl-d">2021 → 2022</span></p>
+      </div>
+      <figure class="plate cell up">
+        <div class="win"><picture>
+          <source type="image/avif" srcset="/plates/rokmc_room_540.avif 540w, /plates/rokmc_room_810.avif 810w, /plates/rokmc_room_1080.avif 1080w" sizes="(max-width: 900px) 92vw, 42vw">
+          <source type="image/webp" srcset="/plates/rokmc_room_540.webp 540w, /plates/rokmc_room_810.webp 810w, /plates/rokmc_room_1080.webp 1080w" sizes="(max-width: 900px) 92vw, 42vw">
+          <img class="pl" src="/plates/rokmc_room_810.jpg" srcset="/plates/rokmc_room_540.jpg 540w, /plates/rokmc_room_810.jpg 810w, /plates/rokmc_room_1080.jpg 1080w" sizes="(max-width: 900px) 92vw, 42vw"
+               width="1080" height="1440" loading="lazy" decoding="async"
+               style="background-image:url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAASABIAAD/4QF8RXhpZgAATU0AKgAAAAgABgESAAMAAAABAAEAAAEaAAUAAAABAAAAVgEbAAUAAAABAAAAXgEoAAMAAAABAAIAAAEyAAIAAAAUAAAAZodpAAQAAAABAAAAegAAAAAAAABIAAAAAQAAAEgAAAABMjAyMjowNDoyOSAwOTowNDowMQAAD5AAAAcAAAAEMDIyMZADAAIAAAAUAAABNJAEAAIAAAAUAAABSJAQAAIAAAAHAAABXJARAAIAAAAHAAABZJASAAIAAAAHAAABbJEBAAcAAAAEAQIDAJKQAAIAAAAEOTk5AJKRAAIAAAAEOTk5AJKSAAIAAAAEOTk5AKAAAAcAAAAEMDEwMKABAAMAAAABAAEAAKACAAQAAAABAAAAGKADAAQAAAABAAAAIKQGAAMAAAABAAAAAAAAAAAyMDIyOjA0OjI5IDA5OjA0OjAxADIwMjI6MDQ6MjkgMDk6MDQ6MDEAKzA5OjAwAAArMDk6MDAAACswOTowMAAA/+0AfFBob3Rvc2hvcCAzLjAAOEJJTQQEAAAAAABEHAFaAAMbJUccAgAAAgACHAI/AAYwOTA0MDEcAj4ACDIwMjIwNDI5HAI3AAgyMDIyMDQyORwCPAALMDkwNDAxKzA5MDA4QklNBCUAAAAAABBJgK2LfT4qNA81v3xcbDMg/8AAEQgAIAAYAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkKC//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAABAgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoWJDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/bAEMACQkJCQkJEAkJEBYQEBAWHhYWFhYeJh4eHh4eJi4mJiYmJiYuLi4uLi4uLjc3Nzc3N0BAQEBASEhISEhISEhISP/bAEMBCwwMEhESHxERH0szKjNLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS//dAAQAAv/aAAwDAQACEQMRAD8AluYoT4k8m9Mhh8jftVivOcdqveT4fEmHtpWB6bpXyf8Ax6uWuruKH5JPOLoMSPDh1BPpkVVuv7PSRljmkZdqyxbmJbGfvcj6cVmpuCs0U6fPqmdxpcFj59z/AGfGIowVG3v06nk1r+Qa4KAafaanbaluRM4aSYufmDcZOfX0ruP+Ek8Pf8/cX5n/AArFvmbZbi42TP/QiKwtp8W2N0wjnbnb1OMkfyrj9JFrNrUk8wDxbvLQseAcHH14HFW9V1OK+kkZSwLLtVh2x/iKp6UEuHSJWAbeZ3yP7owBj8a5bWTZtKfMkjp9Q07+1ZVtbVgm4hAOMf8A1qg/4V1ef89U/P8A+tVF9RlsbtLiDkxMTg9DmtH/AITq/wD+ea/n/wDWrNNrYuPK17zP/9k=')" alt="Four Marines crowded into a phone camera inside a barracks room, April 2022.">
+        </picture></div>
+        <figcaption><span class="pl-n">04</span><span class="pl-t"><span data-en>Off duty</span><span data-ko>비번</span></span><span class="pl-d">2022.04</span></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- 06 ────────────────────────────────────────── education -->
+<section id="s6b" aria-label="Academics" data-overline="MINNEAPOLIS SEOUL" data-overline-dir="rtl">
+  <div class="wrap grid">
+    <div class="sec-head rail-l">
+      <span class="n">05</span>
+      <span class="lb"><span data-en data-scramble>Academics</span><span data-ko>학업</span></span>
+    </div>
+  </div>
+
+  <!-- 05 is set as a record rather than a table. Two entries, one display
+       line, and the only rules are the double rule under the head and a
+       hairline between the two. The service is one item in the meta line,
+       not a paragraph: it is there because the degree spans seven years and
+       eighteen months of that were spent elsewhere. -->
+  <div class="wrap">
+    <header class="ac-h" data-reveal>
+      <h1 class="ac-t">Academics</h1>
+      <i class="orn-b" aria-hidden="true"><s></s><b></b><s></s></i>
+    </header>
+    <div class="dbl" aria-hidden="true"></div>
+
+    <ol class="ent">
+      <li class="ent-i" style="--k:#7A0019">
+        <div class="ent-mk" data-proximity><img src="/marks/umn.svg" alt="" width="267" height="150" loading="lazy" decoding="async"></div>
+        <div class="ent-b">
+          <h2><span data-en>University of Minnesota</span><span data-ko>University of Minnesota</span><span class="city"><span data-en>, Twin Cities</span><span data-ko>, 트윈시티</span></span></h2>
+          <p class="ent-d"><span data-en>Bachelor of Arts in Computer Science</span><span data-ko>컴퓨터공학 학사</span></p>
+          <p class="ent-m"><span data-en>Graduated May 2024</span><span data-ko>2024년 5월 졸업</span><i>&middot;</i><span data-en>Service 2021 to 2022</span><span data-ko>군 복무 2021 부터 2022</span><i>&middot;</i><em><span data-en>GPA 3.68 of 4.00</span><span data-ko>평점 3.68 / 4.00</span></em></p>
+        </div>
+      </li>
+      <li class="ent-i" style="--k:#1B3C7A">
+        <div class="ent-mk" data-proximity><img src="/marks/whimoon.png" alt="" width="188" height="44" loading="lazy" decoding="async"></div>
+        <div class="ent-b">
+          <h2><span data-en>Whimoon High School</span><span data-ko>휘문고등학교</span><span class="city"><span data-en>, Seoul</span><span data-ko>, 서울</span></span></h2>
+          <p class="ent-d"><span data-en>Liberal arts</span><span data-ko>문과</span></p>
+          <p class="ent-m"><span data-en>109th graduating class</span><span data-ko>109기</span><i>&middot;</i><span data-en>Graduated February 2017</span><span data-ko>2017년 2월 졸업</span></p>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section id="s6" aria-label="Off the clock" data-overline="FOUR THOUSAND METRES TO ZERO" data-overline-dir="rtl">
+  <div class="wrap grid">
+    <div class="sec-head rail-l">
+      <span class="n">06</span>
+      <span class="lb"><span data-en data-scramble>Off the clock / Outside work</span><span data-ko>퇴근 후 / 일 밖에서</span></span>
+      <span class="rt"><span data-en>Pinned, not filed</span><span data-ko>정리 안 하고 꽂아둔 것</span></span>
+    </div>
+    <div class="sell">
+      <h2 class="big-line wall-h">
+        <span data-en>The other<br><em>half</em> of it.</span>
+        <span data-ko>나머지<br><em>절반</em>.</span>
+      </h2>
+
+      <!-- The two things that were actually in the bag that morning. The pass
+           carries the real aircraft: N801FL, the Cessna 208B on the tail in
+           the footage below, out of Baldwin at thirteen thousand feet. -->
+      <div class="wall-row">
+        <div class="bp">
+          <div class="bp-l">
+            <b>BOARDING PASS</b>
+            <span class="v"><span data-en>Jump run</span><span data-ko>점프 런</span></span>
+            <small>SEAT: FLOOR &nbsp;&middot;&nbsp; EXIT: 13 000 FT &nbsp;&middot;&nbsp; RETURN: NONE</small>
+          </div>
+          <div class="bp-r"><b>06</b><span class="v">08 / 2023</span></div>
+        </div>
+        <!-- The week, written where a week actually gets written. Two lines
+             of it are real and the third is the whole point. -->
+        <div class="postit">
+          <b><span data-en>THE WEEK</span><span data-ko>이번 주</span></b>
+          <span data-en>sat 20:00 &middot; soccer match<br>sun 09:00 &middot; water ski<br><s>term sheet, sunday</s><br>everything else &middot; <u>rest</u></span>
+          <span data-ko>토 20:00 &middot; 축구 경기<br>일 09:00 &middot; 수상스키<br><s>텀시트, 일요일</s><br>나머지 전부 &middot; <u>휴식</u></span>
+        </div>
+      </div>
+
+      <p class="wall-lbl">NO. 06 &nbsp;&middot;&nbsp; OFF THE CLOCK &nbsp;&middot;&nbsp; <u>UNSORTED</u></p>
+    </div>
+
+    <!-- The prints, clipped. The top one is face up and the other two are
+         only edges, because the rest of them are hanging below. -->
+    <div class="wall-side" aria-hidden="true">
+      <div class="stack">
+        <i class="bull"></i><i class="sh s1"></i><i class="sh s2"></i>
+        <div class="sh-top">
+          <div class="sh-win"><img src="/film/club_night.jpg" alt="" width="1100" height="825" loading="lazy" decoding="async"></div>
+          <div class="sh-chin">
+            <span class="cw"><span data-en>All of us, after the game</span><span data-ko>경기 끝나고, 다 같이</span></span>
+            <small>SEOUL &middot; 2026.05</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="stage">
+    <div class="stage-pin">
+      <div class="slots">
+        <!-- MEDIA SLOT pv-01. 16:9. drop <video muted playsinline loop preload="metadata" poster="..."><source src="..." type="video/mp4"></video> in place of .ph. no CSS change needed. -->
+        <div class="slot wide">
+          <video class="pv" muted playsinline loop preload="metadata"
+                 poster="/film/sky_dive_poster.jpg" aria-label="Skydiving, free fall over farmland">
+            <source src="/film/sky_dive.mp4" type="video/mp4">
+          </video>
+          <span class="slate"><span class="lft"><i class="pn">01</i><span class="cw"><span data-en>Certified diver on a run</span><span data-ko>자격증 있는 다이버, 점프 런 중</span></span></span><small>MINNESOTA &middot; 2023.08</small></span>
+        </div>
+        <!-- MEDIA SLOT pv-02. 16:9 -->
+        <div class="slot">
+          <video class="pv" muted playsinline loop preload="metadata"
+                 poster="/film/ski_ride_poster.jpg" aria-label="Water skiing behind a boat">
+            <source src="/film/ski_ride.mp4" type="video/mp4">
+          </video>
+          <span class="slate"><span class="lft"><i class="pn">02</i><span class="cw"><span data-en>Still up, somehow</span><span data-ko>어쨌든 아직 서 있음</span></span></span><small>CHEONGPYEONG &middot; 2024.07</small></span>
+        </div>
+        <!-- MEDIA SLOT pv-03. 16:9 -->
+        <div class="slot">
+          <video class="pv" muted playsinline loop preload="metadata"
+                 poster="/film/football_poster.jpg" aria-label="A night soccer match on a floodlit pitch">
+            <source src="/film/football.mp4" type="video/mp4">
+          </video>
+          <span class="slate"><span class="lft"><i class="pn">03</i><span class="cw"><span data-en>Goal of the season</span><span data-ko>시즌 최고의 골</span></span></span><small>SEOUL &middot; 2025.05</small></span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="wrap">
+      <!-- MEDIA SLOT pa-01. set data-src on .play and an <audio> source to arm it. -->
+      <div class="audio">
+        <button class="play" type="button" aria-disabled="true" data-src=""
+                aria-label="Play"><svg viewBox="0 0 12 14" aria-hidden="true"><path d="M0 0l12 7-12 7z"/></svg></button>
+        <div class="meta">
+          <span class="slate">TRACK TITLE &middot; YYYY</span>
+          <div class="wave" role="presentation"><i></i></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- The drop into deep water lived here so 07 could rise out of it. With
+       07 out, it ran into a white footer and left a stray band of teal.
+       Put it back with 07:
+  <div class="s6-fall" aria-hidden="true"></div> -->
+</section>
+
+<!-- 07 direction is out for now. The whole section is below, commented,
+     so putting it back is deleting two lines.
+
+<!-- 07 ────────────────────────────────────────── direction - ->
+<section id="s7" aria-label="Direction" data-overline="WHERE BOTH ANSWERS AGREE" data-overline-dir="ltr">
+  <div class="wrap grid">
+    <div class="sec-head rail-l">
+      <span class="n">07</span>
+      <span class="lb"><span data-en>Direction</span><span data-ko>지향</span></span>
+    </div>
+    <div class="sell aim" data-reveal>
+      <!-- PLACEHOLDER. This section's copy is the author's to write. Replace the
+           two blocks below with an h2.pivot and a p, matching the pattern in #s5. - ->
+      <h2 class="pivot is-draft">
+        <span data-en>Direction, to be written.</span>
+        <span data-ko>지향, 직접 쓸 것.</span>
+      </h2>
+      <div data-en>
+        <p class="is-draft">Placeholder. Nothing here is final copy.</p>
+      </div>
+      <div data-ko>
+        <p class="is-draft">자리표시. 여기 문구는 아직 확정 아님.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- 08 ────────────────────────────────────────── contact. the line ends here, third of three - ->
+
+-->
+
+<footer id="s8" aria-label="Contact" data-invert>
+  <!-- the footage returns. same two files the intro used, so it costs no new bytes -->
+  <div class="film-return" aria-hidden="true">
+    <video class="film-return-v" muted playsinline loop preload="none"
+           poster="/film/own_02_under_poster.jpg">
+      <source src="/film/own_02_under_720.mp4" type="video/mp4">
+    </video>
+  </div>
+  <div class="horizon"><hr class="rule" aria-hidden="true" role="presentation"></div>
+  <div class="wrap grid">
+    <div class="sec-head rail-l">
+      <span class="n">08</span>
+      <span class="lb"><span data-en>Contact</span><span data-ko>연락</span></span>
+    </div>
+    <div class="sell" data-reveal>
+      <h2 class="lead-s8"><span data-en>Reach out to exchange our brightest insights.</span><span data-ko>메일이 가장 빠릅니다.</span></h2>
+      <a class="addr" href="mailto:qmin99@gmail.com">qmin99@gmail.com</a>
+      <span class="tel">+82 10-3012-1041</span>
+      <p class="note">
+        <span data-en>All kinds of partnership are welcome.</span>
+        <span data-ko>파트너십은 어느 관할이냐에 따라 첫 답이 달라집니다.</span>
+      </p>
+      <p class="links">
+        <a href="https://linkedin.com/in/kyumin-lee-a293072b3/" target="_blank" rel="noopener"
+           aria-label="LinkedIn profile, opens in a new tab">LinkedIn</a>
+        <span class="sep" aria-hidden="true">&middot;</span>
+        <a href="https://github.com/qmin99" target="_blank" rel="noopener"
+           aria-label="GitHub profile, opens in a new tab">GitHub</a>
+        <span class="sep" aria-hidden="true">&middot;</span>
+        <a href="/cv/Kyumin-Lee-CV-2026-KO.pdf" download
+           aria-label="Resume, PDF, downloads"><span data-en>Resume, PDF</span><span data-ko>이력서, PDF</span></a>
+        <span class="sep" aria-hidden="true">&middot;</span>
+        <a href="/cv/Kyumin-Lee-Portfolio-2026.pdf" download
+           aria-label="Portfolio, PDF, downloads"><span data-en>Portfolio, PDF</span><span data-ko>포트폴리오, PDF</span></a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ---- the record. 13 rows, then one line under the table ---- */
+const EV=[
+ ["2026.02-2026.06",
+  "Two overseas entities. Incorporation, paid-in capital, bank accounts, local counsel run directly.",
+  "해외 법인 두 곳. 설립, 자본금 납입, 은행 계좌, 현지 로펌 직접 상대.",
+  "2 entities, 2 jurisdictions","법인 2, 관할 2","Operating","운영 중",1],
+ ["2026.02-2026.06",
+  "An international financial license application, contributed to. An in-flight filing taken over and closed out.",
+  "국제 금융 라이선스 신청 기여. 진행 중이던 건 인수 후 종결.",
+  "1 filing","신청 1건","Closed out","종결",0],
+ ["2026.02-",
+  "Statutes, licensing guidelines, regulator filing formats, and issuer attestation reports collected and read in the original.",
+  "법령 원문, 라이선스 가이드라인, 감독당국 제출 양식, 발행사 준비금 증명 리포트를 원문으로 수집해 판독.",
+  "8 ASEAN jurisdictions","ASEAN 관할 8","Ongoing","진행 중",1],
+ ["2026.03-",
+  "An account-based, multi-channel outbound program designed end to end. Decision-maker mapping, sequences, cadence, leave-behind material.",
+  "계정 기반 멀티채널 아웃바운드 프로그램 전 구간 설계. 의사결정자 매핑, 시퀀스, 케이던스, 리브비하인드 자료.",
+  "Generators, sheets, trackers, a web console","생성기, 시트, 트래커, 웹 콘솔","Running","가동 중",1],
+ ["2026",
+  "A five-year revenue model on four engines, built from unit assumptions with the source sheet attached.",
+  "4엔진 5개년 매출 모델. 단위 가정에서 쌓고 근거 시트 첨부.",
+  "4 engines, 5 years","4엔진 5개년","In use","사용 중",1],
+ ["2026",
+  "A mutual non-disclosure agreement drafted in English and Korean as mirrors.",
+  "영문과 국문을 미러로 기안한 상호비밀유지계약.",
+  "3 versions, 2 languages","3판, 2개 언어","In use","사용 중",1],
+ ["2026.03-",
+  "A layout audit walks every element on every slide and stops the build on four classes of overflow. The decks themselves are written in HTML and rendered through headless Chrome and vector PDF into Keynote. <span class='tail'>On request.</span>",
+  "레이아웃 감사가 슬라이드마다 모든 요소를 훑어 넘침 4종에서 빌드를 중단. 덱 자체는 HTML로 쓰고 헤드리스 Chrome과 벡터 PDF를 거쳐 키노트로. <span class='tail'>요청 시 제시.</span>",
+  "251 lines. 3 projects. Diff of 1 line","251줄. 프로젝트 3. 차이 1줄","In use","사용 중",1],
+ ["2026.02-",
+  "Decks, documents, and sheets generated from code rather than typed. <span class='tail'>On request.</span>",
+  "덱과 문서, 시트를 손이 아니라 코드로 생성. <span class='tail'>요청 시 제시.</span>",
+  "73 scripts, 23,683 lines","스크립트 73, 23,683줄","In use","사용 중",1],
+ ["2026",
+  "A review delivered as a graded defect list. Each finding quoted to its source with a recommended fix. Method cited to published literature.",
+  "등급화된 결함 목록으로 낸 검토. 항목마다 원문 인용과 권고 수정안. 방법론은 공개 문헌 인용.",
+  "25 defects, 11 documents","결함 25, 문서 11","Delivered","납품",0],
+ ["2024.01-2025.11",
+  "A digital wealthtech platform. Multi-asset portfolio dashboard, legal document system with automated generation and EVM anchoring for integrity verification, an AI legal assistant with chat and voice, brokerage API integration, CI/CD with monitoring. Co-founder and lead full-stack engineer.",
+  "디지털 웰스테크 플랫폼. 멀티자산 포트폴리오 대시보드, 자동 생성과 EVM 앵커링 무결성 검증을 붙인 법률 문서 시스템, 챗과 음성을 갖춘 AI 법률 어시스턴트, 증권 API 연동, 모니터링을 붙인 CI/CD. 공동창업자 겸 리드 풀스택 엔지니어.",
+  "23 months","23개월","Ended","종료",0],
+ ["2020-2024.05",
+  "Bachelor of Arts, Computer Science. University of Minnesota Twin Cities. <img class='mark-inline' src='/marks/umn.svg' alt='' loading='lazy' decoding='async' height='18'>",
+  "컴퓨터공학 학사. University of Minnesota Twin Cities. <img class='mark-inline' src='/marks/umn.svg' alt='' loading='lazy' decoding='async' height='18'>",
+  "GPA 3.68 / 4.00","GPA 3.68 / 4.00","Ended","종료",0],
+ ["2021.06-2022.12",
+  "Republic of Korea Marine Corps, sergeant. Baengnyeongdo, on the northern limit line.",
+  "대한민국 해병대 병장. 백령도.",
+  "18 months","18개월","Ended","종료",0],
+ ["2022.04-2022.05",
+  "Interpreter, ROK-US combined intelligence section. Real-time interpretation of intelligence briefings for senior officers during a theater-level exercise.",
+  "한미연합 정보처 통역병. 연합지휘소훈련에서 고위 장교 정보 브리핑 실시간 통역.",
+  "2 months","2개월","Ended","종료",0]
+];
+
+const HEAD={en:["Period","What","Scale","State"],ko:["기간","내용","규모","상태"]};
+const LANDMARK={
+  en:{s1:"Introduction",s3:"Current work",s4:"Capability",s5:"Record",s6:"06",s7:"Direction",s8:"Contact"},
+  ko:{s1:"소개",s3:"하는 일",s4:"할 수 있는 것",s5:"기록",s6:"06",s7:"지향",s8:"연락"}
+};
+const META={
+  en:{t:"Kyumin Lee",
+      d:"Builder on one side. Dealmaker on the other. Cross-border settlement and stablecoin infrastructure across Southeast Asia, and the engineering behind it."},
+  ko:{t:"이규민",
+      d:"만드는 쪽에 앉는다. 파는 쪽에도 앉는다. 동남아 국경 간 정산과 스테이블코인 인프라, 그리고 그 밑의 엔지니어링."}
+};
+
+window.renderRows=function(){
+  if(!document.getElementById('evbody')) return;   // the record table was removed
+  const L=document.documentElement.getAttribute('data-lang')==='ko'?'ko':'en';
+  const w=L==='en'?1:2, sc=L==='en'?3:4, st=L==='en'?5:6;
+
+  document.getElementById('evhead').innerHTML=
+    '<th scope="col">'+HEAD[L].join('</th><th scope="col">')+'</th>';
+
+  document.getElementById('evbody').innerHTML=EV.map(r=>
+    '<tr>'+
+      '<td class="p">'+r[0]+'</td>'+
+      '<td class="w">'+r[w]+'</td>'+
+      '<td class="sc">'+r[sc]+'</td>'+
+      '<td class="st'+(r[7]?'':' past')+'">'+r[st]+'</td>'+
+    '</tr>').join('');
+
+  for(const id in LANDMARK[L]){
+    const el=document.getElementById(id);
+    if(el) el.setAttribute('aria-label',LANDMARK[L][id]);
+  }
+  document.title=META[L].t;
+  document.querySelector('meta[name="description"]')?.setAttribute('content',META[L].d);
+  document.querySelector('meta[property="og:title"]')?.setAttribute('content',META[L].t);
+  document.querySelector('meta[property="og:description"]')?.setAttribute('content',META[L].d);
+  const play=document.querySelector('.play');
+  if(play) play.setAttribute('aria-label',L==='en'?'Play':'재생');
+};
+window.renderRows();
+
+/* ---- the top bar inverts while it sits over the stage ---- */
+(function(){
+  const stage=document.getElementById('s6'); if(!stage||!('IntersectionObserver' in window)) return;
+  let io=null;
+  const arm=()=>{
+    io?.disconnect();
+    const bar=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--bar'))||56;
+    io=new IntersectionObserver(([e])=>{
+      document.documentElement.classList.toggle('stage-bar',e.isIntersecting);
+    },{rootMargin:'0px 0px -'+Math.max(0,innerHeight-bar)+'px 0px'});
+    io.observe(stage);
+  };
+  arm();
+  let t; addEventListener('resize',()=>{ clearTimeout(t); t=setTimeout(arm,200) },{passive:true});
+})();
+
+/* ---- pa-01. arms itself only when a source is dropped in ---- */
+(function(){
+  const btn=document.querySelector('.play');
+  if(!btn||!btn.dataset.src) return;
+  const a=new Audio(btn.dataset.src);
+  const bar=document.querySelector('.wave i');
+  btn.setAttribute('aria-disabled','false');
+  btn.addEventListener('click',()=>{ a.paused?a.play():a.pause() });
+  a.addEventListener('timeupdate',()=>{ if(bar&&a.duration) bar.style.width=(a.currentTime/a.duration*100)+'%' });
+})();
+</script>
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
