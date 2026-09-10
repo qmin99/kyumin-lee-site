@@ -1503,7 +1503,8 @@ html[data-lang="en"] #s5 .build .big-line [data-ko]{ display:none }
 #s5 .m6 .win{ aspect-ratio:4/3;overflow:hidden;position:relative;background:#0B0D08 }
 #s5 .m6 .plate .pl{ width:100%;height:100%;object-fit:cover;aspect-ratio:auto !important;
   border:0 !important;border-radius:0 !important;box-shadow:none !important }
-#s5 .m6 .plate.up .pl{ object-position:center 42% }
+/* The group photograph is cropped to 4:3 in the file now. object-position
+   was not reaching it, and a nudge you cannot see is not a fix. */
 /* one caption bar on all six */
 #s5 .m6 figcaption,#s5 .m6 .cbar{
   display:flex;align-items:center;gap:10px;margin:12px 0 0;padding-top:9px;
@@ -1521,13 +1522,48 @@ html[data-lang="ko"] #s5 .m6 figcaption,html[data-lang="ko"] #s5 .m6 .cbar{ font
 #s5 .m6 .cell.map .win{ display:grid;place-items:center;background:transparent }
 #s5 .m6 .cell.map .locator-frame{ height:100%;aspect-ratio:1.05;width:auto }
 /* the record cell: the caption at the head, the service lines at the foot */
-#s5 .m6 .cell.rec .win{ aspect-ratio:auto;flex:1;display:flex;flex-direction:column;justify-content:space-between;
-  gap:var(--s2);background:none;padding:6px 4px 2px }
-#s5 .m6 .cell.rec .cap{ margin:0;font-size:15px;line-height:1.62;color:#CFC3B4;max-width:none }
-html[data-lang="ko"] #s5 .m6 .cell.rec .cap{ font-family:var(--kor);font-size:13.5px;line-height:1.78 }
-#s5 .m6 .cell.rec .lines{ display:flex;flex-direction:column;gap:var(--s1) }
-#s5 .m6 .cell.rec .data{ margin:0;color:var(--rokmc-gold);font-family:var(--mono);font-size:12.5px;line-height:1.6;letter-spacing:.01em }
-html[data-lang="ko"] #s5 .m6 .cell.rec .data{ font-family:var(--kor);font-size:12px }
+/* The record sits in the fifth box, the same size as the five photographs
+   around it. That is the constraint: it must not be taller, or the grid row
+   grows and the pictures beside it are stretched to match. So it carries the
+   same 4:3 as they do, and the type is sized to fit inside it. */
+#s5 .m6 .cell.rec .win{
+  aspect-ratio:4/3;overflow:hidden;background:none;
+  padding:clamp(8px,.9vw,13px) clamp(6px,.7vw,10px) 4px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  gap:clamp(10px,1.1vw,15px);
+}
+/* a heading, not a paragraph. the two postings underneath say what happened;
+   this only has to say where */
+#s5 .m6 .cell.rec .cap{
+  margin:0;font-family:var(--mono);font-size:10.5px;font-weight:500;
+  letter-spacing:.22em;text-transform:uppercase;color:rgb(244 180 26 / .62);
+  max-width:none;padding-bottom:clamp(10px,1.1vw,15px);
+  border-bottom:1px solid rgb(244 180 26 / .20);
+}
+html[data-lang="ko"] #s5 .m6 .cell.rec .cap{ font-family:var(--kor);font-size:12px;letter-spacing:.08em }
+/* the date and the post share a line, so each posting is a heading and a
+   sentence rather than three stacked things */
+/* the post opens the line and the dates close it, the way a record is read:
+   what it was first, when it was second */
+#s5 .svc-h{ margin:0;display:flex;align-items:baseline;justify-content:space-between;gap:12px }
+#s5 .svc-d{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;
+  color:rgb(244 180 26 / .5);font-variant-numeric:tabular-nums;white-space:nowrap;
+  flex:none;
+}
+#s5 .svc-r{
+  font-family:var(--mono);font-size:11.5px;font-weight:600;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--rokmc-gold);
+}
+html[data-lang="ko"] #s5 .svc-r{ font-family:var(--kor);letter-spacing:.04em;font-size:13px }
+#s5 .svc-t{
+  margin:6px 0 0;font-family:var(--lat);font-size:12.5px;line-height:1.56;
+  color:rgb(238 233 222 / .72);
+}
+html[data-lang="ko"] #s5 .svc-t{ font-family:var(--kor);font-size:12px;word-break:keep-all }
+@media(max-width:900px){
+  #s5 .m6 .cell.rec .win{ aspect-ratio:auto }
+}
 
 @media(max-width:900px){
   #s5 .sec-head.twin{ grid-column:1 / -1;grid-row:3;text-align:left;margin-top:14px }
@@ -2496,8 +2532,3 @@ html.no-motion .wb-veil,html.no-motion .wb-dev,html.no-motion .wb-wet{display:no
 }
 
 /* the two service lines carry the post, not just the dates */
-#s5 .data .d-role{
-  display:block;margin-bottom:5px;font-family:var(--mono);font-size:10px;font-weight:500;
-  letter-spacing:.22em;text-transform:uppercase;color:var(--rokmc-gold);
-}
-html[data-lang="ko"] #s5 .data .d-role{ font-family:var(--kor);letter-spacing:.08em;font-size:11.5px }
