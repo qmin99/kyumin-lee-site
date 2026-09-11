@@ -219,6 +219,10 @@ export function initScroll({ reduce = false } = {}) {
     /* ---- the deep chapter takes the chrome with it ---- */
     const deep = document.getElementById('s6')
     if (deep) {
+      /* this tween writes inline colour, and inline beats the stylesheet, so the
+         bar stayed pinned light for the rest of the page. clearProps loses the
+         race against a lagging scrub, so the inverted rules carry !important
+         in page.css instead. Leave the tween alone. */
       gsap.timeline({ scrollTrigger: { trigger: deep, start: 'top 70%', end: 'bottom 30%', scrub: 0.5 } })
         .to('.top', { backgroundColor: 'rgba(6,32,31,.94)', ease: 'none' }, 0)
         .to('.top .nm', { color: '#EAF6F3', ease: 'none' }, 0)

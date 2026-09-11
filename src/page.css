@@ -712,8 +712,8 @@ section > .wrap,section > .grid,section > *:not(.overline):not(.overline-clip):n
 
 /* ---- inversion ---- */
 html.inverted body{background:#07100F;color:#EDF4F2}
-html.inverted .top{background:rgba(7,16,15,.74);border-bottom-color:#16302C}
-html.inverted .top .nm{color:#EDF4F2}
+html.inverted .top{background:rgba(7,16,15,.74)!important;border-bottom-color:#16302C}
+html.inverted .top .nm{color:#EDF4F2!important}
 html.inverted .top .set a,html.inverted .top .set button{color:#7FA8A0}
 html.inverted .overline{-webkit-text-stroke-color:#1D3A35}
 html.inverted .big-line,html.inverted .edu-name,html.inverted .pivot,
@@ -735,35 +735,54 @@ body,.top,.big-line,.edu-name,.pivot,.hero-l,.lead,.cap,.prose p,.edu-meta,
 #s7 .aim .big-line{max-width:18ch;margin-bottom:clamp(26px,3.4vw,44px)}
 #s7 .cap{max-width:34ch;font-size:clamp(15px,1.6vw,19px)}
 
-/* ---- 08 contact ---- */
+/* ---- 08 contact. the panel the page closes on ---- */
 .lead-s8{
-  font-family:var(--lat);font-size:clamp(15px,1.7vw,20px);
-  color:var(--muted);margin:0 0 clamp(20px,2.6vw,34px);
+  font-family:var(--disp);font-size:clamp(26px,3.2vw,46px);
+  line-height:1.14;letter-spacing:-.01em;color:var(--ink);
+  margin:0 0 clamp(28px,3vw,44px);max-width:19ch;
 }
+html[data-lang="ko"] .lead-s8{font-family:var(--kor-disp);line-height:1.32;letter-spacing:-.03em}
+.lead-s8 em{font-style:italic;color:var(--sea-1)}
+html.inverted .lead-s8{color:#EDF4F2}
+html.inverted .lead-s8 em{color:var(--foam)}
+
+/* the address sat at 62px with break-all, so a long handle split mid word.
+   a mono line that stays on one row, with the rule under it carrying hover */
 .addr{
-  display:block;font-family:var(--mono);
-  font-size:clamp(22px,4.4vw,62px);line-height:1;letter-spacing:-.03em;
+  display:inline-block;font-family:var(--mono);
+  font-size:clamp(19px,2.7vw,38px);line-height:1.1;letter-spacing:-.02em;
   color:var(--ink);text-decoration:none;border:0;
-  transition:color .3s var(--ease);word-break:break-all;
+  border-bottom:1px solid var(--hair-2);padding-bottom:8px;
 }
-.addr:hover{color:var(--sun)}
 .tel{
-  display:block;margin-top:clamp(12px,1.6vw,22px);
-  font-family:var(--mono);font-size:clamp(15px,2vw,26px);
-  letter-spacing:-.01em;color:var(--dim);
+  display:block;margin-top:clamp(18px,2.2vw,30px);
+  font-family:var(--mono);font-size:13px;letter-spacing:.02em;color:var(--dim);
 }
-.note{margin:clamp(28px,3.6vw,48px) 0 0;max-width:36ch;color:var(--muted);font-size:15px}
+.note{margin:clamp(24px,2.6vw,36px) 0 0;max-width:44ch;color:var(--muted);font-size:15px}
 .links{
-  margin:clamp(34px,4.4vw,60px) 0 0;font-family:var(--mono);
-  font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);
-  display:flex;flex-wrap:wrap;gap:0 12px;align-items:center;
+  margin:clamp(28px,3vw,42px) 0 0;
+  display:flex;flex-wrap:wrap;gap:10px;align-items:center;
 }
-.links a{color:var(--dim);text-decoration:none;border-bottom:1px solid transparent}
-.links a:hover{color:var(--sun);border-bottom-color:var(--sun)}
-.links .sep{color:var(--rule-c)}
-html.inverted .addr{color:#EDF4F2}
-html.inverted .tel,html.inverted .links a,html.inverted .note{color:#93AFA9}
-html.inverted .lead-s8{color:#7FA8A0}
+.links .sep{display:none}
+.links a{
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dim);text-decoration:none;
+  padding:9px 15px;border:1px solid var(--hair-2);border-radius:999px;
+}
+.links a:hover{background:var(--sun);border-color:var(--sun);color:var(--abyss)}
+.foot-bar{
+  grid-column:1 / -1;display:flex;justify-content:space-between;align-items:center;
+  gap:16px;flex-wrap:wrap;margin:clamp(48px,5vw,80px) 0 0;padding:22px 0 0;
+  border-top:1px solid var(--hair);
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--dim);
+}
+.foot-bar small{font-size:inherit;letter-spacing:inherit}
+html.inverted .addr{color:#EDF4F2;border-bottom-color:rgba(127,214,199,.35)}
+html.inverted .tel,html.inverted .note{color:#93AFA9}
+html.inverted .links a{color:#93AFA9;border-color:rgba(147,175,169,.28)}
+html.inverted .links a:hover{background:var(--foam);border-color:var(--foam);color:#07100F}
+html.inverted .foot-bar{border-top-color:rgba(147,175,169,.2);color:#5E7E78}
 
 /* ---- the page assembles after the film. nothing is pre drawn ---- */
 html:not(.entered) .top,
@@ -817,9 +836,9 @@ html.inverted .overline-item{-webkit-text-stroke-color:#1D3A35}
 .edu-mark img{ filter:drop-shadow(0 4px 10px rgba(12,26,24,.10)); }
 .top{ box-shadow:0 1px 0 rgba(12,26,24,.04), 0 8px 24px rgba(12,26,24,.03); }
 /* the horizon carries its own edges: paper above, olive below. no inset shadow */
-.addr{ transition:color var(--d-2) var(--e-out); }
+.addr{ transition:color var(--d-2) var(--e-out), border-color var(--d-2) var(--e-out); }
 .wh-rule{ transition:background-color var(--d-1) var(--e-out); }
-.links a{ transition:color var(--d-1) var(--e-out), border-color var(--d-2) var(--e-out); }
+.links a{ transition:color var(--d-1) var(--e-out), border-color var(--d-2) var(--e-out), background-color var(--d-2) var(--e-out); }
 .top .set a,.top .set button{ transition:color var(--d-1) var(--e-out); }
 .top .set a:hover,.top .set button:hover,.links a:hover,.addr:hover{ color:var(--foam); }
 html:not(.inverted) .top .set a:hover,
