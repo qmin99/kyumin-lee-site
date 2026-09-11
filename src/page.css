@@ -743,7 +743,7 @@ body,.top,.big-line,.edu-name,.pivot,.hero-l,.lead,.cap,.prose p,.edu-meta,
 }
 html[data-lang="ko"] .lead-s8{font-family:var(--kor-disp);line-height:1.32;letter-spacing:-.03em}
 .lead-s8 em{font-style:italic;color:var(--sea-1)}
-html.inverted .lead-s8{color:#EDF4F2}
+html.inverted .lead-s8{color:#FFF}
 html.inverted .lead-s8 em{color:var(--foam)}
 
 /* the address sat at 62px with break-all, so a long handle split mid word.
@@ -782,7 +782,7 @@ html.inverted .addr{color:#EDF4F2;border-bottom-color:rgba(127,214,199,.35)}
 html.inverted .tel,html.inverted .note{color:#93AFA9}
 html.inverted .links a{color:#93AFA9;border-color:rgba(147,175,169,.28)}
 html.inverted .links a:hover{background:var(--foam);border-color:var(--foam);color:#07100F}
-html.inverted .foot-bar{border-top-color:rgba(147,175,169,.2);color:#5E7E78}
+html.inverted .foot-bar{border-top-color:rgba(147,175,169,.2);color:#FFF}
 
 /* ---- the page assembles after the film. nothing is pre drawn ---- */
 html:not(.entered) .top,
@@ -1015,7 +1015,7 @@ html.inverted footer .sec-head .lb{ color:#A6C4BE }
 html.inverted footer .tel,
 html.inverted footer .links a{ color:#B6CFCA }
 html.inverted footer .note{ color:#9FBBB6 }
-html.inverted footer .lead-s8{ color:#9CC4BC }
+html.inverted footer .lead-s8{ color:#FFF }
 html.inverted footer .links .sep{ color:#4E706A }
 footer .sec-head .n,footer .sec-head .lb,footer .lead-s8,
 footer .addr,footer .tel,footer .note,footer .links{
