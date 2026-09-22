@@ -2578,54 +2578,88 @@ html.no-motion .wb-veil,html.no-motion .wb-dev,html.no-motion .wb-wet{display:no
   .top .idx{ display:none }
   .top .set{ gap:18px }
 
-  /* a poster: picture at the head, words standing on the foot */
+  /* The phone reverses across the middle. The first claim stands on paper
+     at the head, the second is cut out of the picture at the foot, and the
+     two halves of the sentence end up on two different grounds. The layout
+     says what the copy says.
+
+     The markup is untouched. .hero-foot and .hero-meta go display:contents
+     so the three meta pairs become direct children of the section, which is
+     the only way to seat one of them at the head and another at the foot
+     without writing the copy twice. */
   #s1{
-    justify-content:flex-end;
-    padding:calc(54px + 6vh) 0 clamp(26px,6vh,58px);
+    justify-content:flex-start;
+    padding:calc(54px + 3.4vh) 0 clamp(58px,12.5vh,112px);
   }
+  /* the teal wash on the foot muddies the dark half */
+  #s1::after{ display:none }
+
+  .hero-foot,.hero-meta{ display:contents }
+  .horizon,.hero-index{ display:none }
 
   /* the claim wraps, and takes the size it earns by wrapping */
   .hero-l,.hero-r{
     white-space:normal;
-    font-size:clamp(38px,11.6vw,54px);
-    line-height:.95;letter-spacing:-.038em;
+    font-size:clamp(38px,11.6vw,52px);
+    line-height:.94;letter-spacing:-.04em;
     text-wrap:balance;
   }
   html[data-lang="ko"] .hero-l,
   html[data-lang="ko"] .hero-r{
-    font-size:clamp(33px,10vw,46px);
-    line-height:1.13;letter-spacing:-.04em;
+    font-size:clamp(32px,9.6vw,44px);
+    line-height:1.14;letter-spacing:-.04em;
   }
 
-  .eyebrow{ margin:0 0 clamp(14px,3vh,24px) }
+  .eyebrow{ margin:0 0 clamp(13px,2.6vh,22px) }
 
-  /* the waterline tightens so the two halves read as one statement */
-  .horizon{ margin:clamp(12px,1.8vh,19px) auto }
+  /* the second claim is cut out of the picture, so it carries its own
+     shadow rather than trusting whatever frame is behind it */
+  #s1 > .wrap:has(.hero-r){ order:4;margin-top:auto }
+  .hero-r{
+    color:#F4F7F6;
+    text-shadow:0 2px 18px rgb(4 9 13 / .5), 0 1px 3px rgb(4 9 13 / .3);
+  }
 
-  .hero-foot{ margin-top:clamp(28px,5vh,50px);gap:24px }
-
-  /* the meta stops being three cramped columns and becomes a ledger */
-  .hero-meta{ display:block }
+  /* the meta pairs become one mono line each, values only. the labels stay
+     in the accessibility tree, they are only taken off the screen */
+  /* display:contents drops the box, not the node, so the stylesheet's
+     "section > *" rule still does not see these: they are section > .wrap
+     > dl > div in the DOM either way. Without it they inherit neither the
+     column's width nor the z-index that lifts content off the film, and
+     they were being painted behind the picture at x 0. Both are restated
+     here. */
   .hero-meta div{
-    flex-direction:row;align-items:baseline;justify-content:space-between;
-    gap:18px;padding:11px 0;border-bottom:1px solid var(--hair);
+    position:relative;z-index:1;
+    width:var(--col);margin:0 auto;
+    display:flex;flex-direction:row;align-items:center;gap:10px;
+    font-family:var(--mono);font-size:10px;letter-spacing:.17em;text-transform:uppercase;
+    border:0;padding:0;
   }
-  .hero-meta div:first-child{ border-top:1px solid var(--hair) }
-  .hero-meta div{ align-items:flex-start }
-  .hero-meta dt{ font-size:9px;letter-spacing:.2em;flex:none;padding-top:3px }
-  /* Field is the long one. it wraps rather than crowding the edge */
-  .hero-meta dd{ font-size:13px;line-height:1.35;text-align:right;max-width:62% }
+  .hero-meta dt{
+    position:absolute;width:1px;height:1px;overflow:hidden;
+    clip-path:inset(50%);white-space:nowrap;
+  }
+  .hero-meta dd{
+    margin:0;font-family:inherit;font-size:inherit;letter-spacing:inherit;
+    text-transform:inherit;text-align:left;max-width:none;color:var(--muted);
+  }
+  html[data-lang="ko"] .hero-meta div{ font-family:var(--kor);letter-spacing:.06em }
 
-  /* the index gets a thumb sized row and a direction to point in */
-  .hero-index a{
-    min-height:46px;align-items:center;padding:0;gap:16px;
-    font-size:11.5px;letter-spacing:.15em;
+  /* Based and Languages sit under the first claim, on paper */
+  .hero-meta div:nth-of-type(1){ order:2;margin-top:clamp(14px,2.6vh,22px) }
+  .hero-meta div:nth-of-type(3){ order:3;margin-top:5px }
+
+  /* Field sits at the foot, in the picture, and carries the only thing
+     left that says there is more page below */
+  .hero-meta div:nth-of-type(2){
+    order:5;justify-content:space-between;margin-top:clamp(15px,2.4vh,22px);
   }
-  .hero-index a i{ font-size:10px;min-width:17px }
-  .hero-index a::after{
-    content:'';margin-left:auto;flex:none;width:5px;height:5px;
-    border-right:1px solid var(--rule-c);border-top:1px solid var(--rule-c);
-    transform:rotate(45deg);
+  .hero-meta div:nth-of-type(2) dd{ color:rgb(244 247 246 / .74) }
+  .hero-meta div:nth-of-type(2)::after{
+    content:'';flex:none;width:30px;height:30px;border-radius:50%;
+    border:1px solid rgb(244 247 246 / .34);
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23F4F7F6' stroke-width='1.4' stroke-linecap='square'/%3E%3C/svg%3E") no-repeat center / 11px 7px;
+    animation:cue-bob 2.1s ease-in-out infinite;
   }
 
   /* The rain on the glass stays: it is one of the two things a visitor
@@ -2639,17 +2673,27 @@ html.no-motion .wb-veil,html.no-motion .wb-dev,html.no-motion .wb-wet{display:no
      here. The tween reads this value rather than carrying its own. */
   :root{ --field-op:.13 }
 
-  /* At 390px a 16:9 skydive keeps only a vertical slice of itself, so
-     there is no jump to frame here. Shortening the film into a band was
-     tried and put the diver straight through the claim. Instead the
-     frame stays full bleed and is read for what survives the crop: the
-     curve of the earth and the light coming round it. The scrim closes
-     above the foot so the claim and the index keep clean paper. */
+  /* C3. Solid paper holds only the top eighth, then the sky comes up
+     through it and keeps coming until the foot is dark enough to cut
+     white type out of.
+
+     The last stops are not in the option page: there the phone was a
+     closed box, but here section 03 starts on paper directly under this,
+     so the dark has to resolve before the edge or the join reads as a
+     seam. It returns to paper across the final tenth, below where the
+     second claim sits. */
   .hero-film video{ object-position:54% 42% }
   .hero-film::after{
     background:linear-gradient(180deg,
-      rgb(250 250 250 / .06) 0%,  rgb(250 250 250 / .12) 22%,
-      rgb(250 250 250 / .46) 34%, rgb(250 250 250 / .88) 43%,
-      rgb(250 250 250 / .99) 50%, rgb(250 250 250 / 1) 58%);
+      rgb(250 250 250 / 1)   0%,   rgb(250 250 250 / 1)   12%,
+      rgb(250 250 250 / .74) 27%,  rgb(250 250 250 / .30) 46%,
+      rgb(4 9 13 / .10)      54%,  rgb(4 9 13 / .52)      68%,
+      rgb(4 9 13 / .60)      86%,  rgb(4 9 13 / .34)      93%,
+      rgb(250 250 250 / .55) 97%,  rgb(250 250 250 / 1)   100%);
   }
+}
+
+@keyframes cue-bob{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(4px)} }
+@media (prefers-reduced-motion:reduce){
+  .hero-meta div:nth-of-type(2)::after{ animation:none }
 }
