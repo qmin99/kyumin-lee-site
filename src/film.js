@@ -240,21 +240,35 @@ export function createFilm(host, { onDone, onSettle, onHandover, quality = '4k',
   const vBot = veil.querySelector('.iv-bot')
   const vLine = veil.querySelector('.iv-line')
   const drawing = gsap.fromTo(vLine, { scaleX: 0 }, { scaleX: 0.88, duration: 4, ease: 'power2.out' })
+  const gapT0 = performance.now()
 
-  /* onPart fires the instant the black starts to move, which is when the
-     first frame becomes visible in the sliver at the centre. The film is
-     started there rather than when this timeline begins: starting both
-     together cost the footage its first second and a bit, all of it spent
-     behind an unbroken black, and the reveal then opened onto a shot
-     already in progress. */
-  function openVeil(onPart) {
+  /* The exit costs the film whatever it takes, so it is paid for out of
+     the wait rather than out of the footage.
+
+     A wait nobody noticed gets no ceremony at all. Under a third of a
+     second the veil simply goes: on a warm cache the videos are ready
+     almost at once, and a line that zips across and parts in front of a
+     reader who never waited is pure delay dressed as design.
+
+     When there was a real wait, the parting is half a second rather than
+     the second it used to be. The whole film is 5.55s and the grade ramp
+     that opens it is 1.4s, so a 1.17s exit was eating a fifth of the
+     piece and most of its opening. onPart fires as the black starts to
+     move, which is when the first frame appears in the sliver at the
+     centre. */
+  function openVeil(waited, onPart) {
     drawing.kill()
+    if (waited < 340) {
+      veil.remove()
+      onPart?.()
+      return null
+    }
     return gsap.timeline()
-      .to(vLine, { scaleX: 1, duration: 0.22, ease: 'power2.in' })
+      .to(vLine, { scaleX: 1, duration: 0.14, ease: 'power2.in' })
       .call(() => onPart?.())
-      .to(vTop, { yPercent: -100, duration: 0.95, ease: 'expo.inOut' })
-      .to(vBot, { yPercent: 100, duration: 0.95, ease: 'expo.inOut' }, '<')
-      .to(vLine, { opacity: 0, duration: 0.5, ease: 'power2.out' }, '<0.2')
+      .to(vTop, { yPercent: -100, duration: 0.5, ease: 'expo.inOut' })
+      .to(vBot, { yPercent: 100, duration: 0.5, ease: 'expo.inOut' }, '<')
+      .to(vLine, { opacity: 0, duration: 0.34, ease: 'power2.out' }, '<0.08')
       .call(() => veil.remove())
   }
 
@@ -303,10 +317,7 @@ export function createFilm(host, { onDone, onSettle, onHandover, quality = '4k',
      immediately override an external pause */
   ready.then(() => {
     if (hold) return
-    /* the film starts as the black parts, not as this begins, so the
-       reveal opens on the first frame instead of onto a shot already
-       a second in */
-    openVeil(() => tl.play())
+    openVeil(performance.now() - gapT0, () => tl.play())
   })
 
   return {
