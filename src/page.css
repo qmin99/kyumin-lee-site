@@ -850,7 +850,7 @@ html.inverted .data{ color:var(--foam); }
 
 /* ---- the field becomes a global layer, not a hero decoration ---- */
 #field{
-  position:fixed;inset:0;width:100vw;height:100svh;
+  position:fixed;inset:0;height:100svh;
   z-index:0;pointer-events:none;opacity:.5;
 }
 html.no-motion #field{ display:none; }
@@ -2476,9 +2476,15 @@ html[data-lang="ko"] .dl-m{font-family:var(--kor);letter-spacing:.06em}
 .dl-m a:hover{color:var(--ink)}
 
 @media(max-width:900px){
+  /* the photo stack leans less, and the section clips what still bleeds,
+     so a rotated card cannot hand the whole page a horizontal scroll */
+  #s6{ overflow-x:clip }
+  #s6 .stack .s1{ transform:rotate(-2.6deg) translate(-6px,7px) }
+  #s6 .stack .s2{ transform:rotate(1.9deg) translate(6px,3px) }
   .wp-split{grid-template-columns:1fr;gap:48px}
   .wp-item{grid-template-columns:32px minmax(0,1fr);gap:0 12px}
   .wp-thumb{grid-column:2;margin-bottom:14px}
+  .wp-body{grid-column:2;min-width:0}
   .case-stage{height:320px}
 }
 
@@ -2551,3 +2557,93 @@ html.no-motion .wb-veil,html.no-motion .wb-dev,html.no-motion .wb-wet{display:no
 }
 
 /* the two service lines carry the post, not just the dates */
+
+/* ==================================================================
+   THE PHONE HERO
+
+   Desktop sizes the claim off the column so that "Dealmaker on the
+   other.", all 23 characters of it, holds one line. On a 390px screen
+   that same rule prints the claim at 32px and then silently eats the
+   overflow, because both lines are nowrap inside overflow:hidden. So
+   the phone gets its own hero rather than a shrunken copy of the
+   desktop one: the claim wraps and grows, the frame is allowed to
+   read as a photograph instead of a wash, and the whole block sits
+   low where a thumb can reach the index.
+   ================================================================== */
+@media(max-width:700px){
+
+  /* the date goes first. it was what pushed Resume past the edge */
+  .top{ height:54px }
+  .top .wrap{ height:54px }
+  .top .idx{ display:none }
+  .top .set{ gap:18px }
+
+  /* a poster: picture at the head, words standing on the foot */
+  #s1{
+    justify-content:flex-end;
+    padding:calc(54px + 6vh) 0 clamp(26px,6vh,58px);
+  }
+
+  /* the claim wraps, and takes the size it earns by wrapping */
+  .hero-l,.hero-r{
+    white-space:normal;
+    font-size:clamp(38px,11.6vw,54px);
+    line-height:.95;letter-spacing:-.038em;
+    text-wrap:balance;
+  }
+  html[data-lang="ko"] .hero-l,
+  html[data-lang="ko"] .hero-r{
+    font-size:clamp(33px,10vw,46px);
+    line-height:1.13;letter-spacing:-.04em;
+  }
+
+  .eyebrow{ margin:0 0 clamp(14px,3vh,24px) }
+
+  /* the waterline tightens so the two halves read as one statement */
+  .horizon{ margin:clamp(12px,1.8vh,19px) auto }
+
+  .hero-foot{ margin-top:clamp(28px,5vh,50px);gap:24px }
+
+  /* the meta stops being three cramped columns and becomes a ledger */
+  .hero-meta{ display:block }
+  .hero-meta div{
+    flex-direction:row;align-items:baseline;justify-content:space-between;
+    gap:18px;padding:11px 0;border-bottom:1px solid var(--hair);
+  }
+  .hero-meta div:first-child{ border-top:1px solid var(--hair) }
+  .hero-meta div{ align-items:flex-start }
+  .hero-meta dt{ font-size:9px;letter-spacing:.2em;flex:none;padding-top:3px }
+  /* Field is the long one. it wraps rather than crowding the edge */
+  .hero-meta dd{ font-size:13px;line-height:1.35;text-align:right;max-width:62% }
+
+  /* the index gets a thumb sized row and a direction to point in */
+  .hero-index a{
+    min-height:46px;align-items:center;padding:0;gap:16px;
+    font-size:11.5px;letter-spacing:.15em;
+  }
+  .hero-index a i{ font-size:10px;min-width:17px }
+  .hero-index a::after{
+    content:'';margin-left:auto;flex:none;width:5px;height:5px;
+    border-right:1px solid var(--rule-c);border-top:1px solid var(--rule-c);
+    transform:rotate(45deg);
+  }
+
+  /* the field is a decorative rain of vertical lines. against the closed
+     scrim it stopped reading as texture and started reading as a glitch
+     across the index, so the phone does without it */
+  #field{ display:none }
+
+  /* At 390px a 16:9 skydive keeps only a vertical slice of itself, so
+     there is no jump to frame here. Shortening the film into a band was
+     tried and put the diver straight through the claim. Instead the
+     frame stays full bleed and is read for what survives the crop: the
+     curve of the earth and the light coming round it. The scrim closes
+     above the foot so the claim and the index keep clean paper. */
+  .hero-film video{ object-position:54% 42% }
+  .hero-film::after{
+    background:linear-gradient(180deg,
+      rgb(250 250 250 / .06) 0%,  rgb(250 250 250 / .12) 22%,
+      rgb(250 250 250 / .46) 34%, rgb(250 250 250 / .88) 43%,
+      rgb(250 250 250 / .99) 50%, rgb(250 250 250 / 1) 58%);
+  }
+}
