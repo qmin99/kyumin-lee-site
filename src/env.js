@@ -83,6 +83,18 @@ const isWebView = Boolean(webviewApp) || ANDROID_WV || IOS_NO_SAFARI || IOS_NO_S
  * whole file was written for. */
 const HOSTILE_APPS = new Set(['linkedin', 'kakaotalk', 'instagram', 'facebook', 'messenger', 'threads', 'tiktok', 'snapchat'])
 
+/* Hostile is two separate claims that were being answered with one flag:
+ * "thin the point clouds and cap the pixel ratio, this host is short on
+ * memory" and "do not hand this host two video textures at once". Only the
+ * second one costs the visitor the intro, which is the piece the page is
+ * built around, and LinkedIn is where most first visits arrive from.
+ *
+ * So LinkedIn now keeps every memory protection a hostile host gets, the
+ * halved counts and the 1.25 ratio, and plays the intro anyway. If it turns
+ * out to blank or drop the tab there, put 'linkedin' back in this set and
+ * nothing else has to change. */
+const NO_INTRO_APPS = new Set([...HOSTILE_APPS].filter((a) => a !== 'linkedin'))
+
 /* ------------------------------------------------------------------ *
  * 2. WebGL probe
  * ------------------------------------------------------------------ */
@@ -212,9 +224,9 @@ function budgetFor(tier) {
          lite floor, and dropping the intro there meant one dip cost the
          visitor the one thing the page is built around, for the whole of
          the floor's life. It plays here at the smaller encode instead.
-         Only a hostile in-app WebView, which cannot be trusted with two
-         video textures, goes without. */
-      intro: !hostile,
+         The hosts that go without are the ones in NO_INTRO_APPS, which is
+         every hostile app except LinkedIn: see the note on that set. */
+      intro: !(isWebView && NO_INTRO_APPS.has(webviewApp)),
       field: true,
       // Vertex-bound work. Halved again inside a hostile in-app WebView.
       fieldCount: hostile ? 12000 : 24000,
