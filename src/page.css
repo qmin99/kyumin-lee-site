@@ -1976,14 +1976,22 @@ html.has-hero-film #field{ opacity:.22 }
   background:linear-gradient(90deg,transparent,rgb(246 241 234 / .85),transparent);
 }
 
-/* over a picture the hero furniture cannot use page greys */
-html.has-hero-film .eyebrow{ color:var(--ink);opacity:.72 }
-html.has-hero-film .hero-r{ color:#3D4644 }
-html.has-hero-film .hero-meta dt{ color:#4E5654 }
-html.has-hero-film .hero-meta dd{ color:var(--ink);font-weight:500 }
-html.has-hero-film .hero-index a{ color:#39423F;border-bottom-color:rgb(11 12 12 / .18) }
-html.has-hero-film .hero-index a i{ color:#6B7370 }
-html.has-hero-film .hero-index a:hover{ color:var(--ink);border-bottom-color:var(--ink) }
+/* over a picture the hero furniture cannot use page greys.
+
+   Desktop only. The phone hero reverses across the middle instead: its
+   second claim is cut out of the picture in white, and these selectors
+   carry a class and an element more than the phone block does, so
+   unscoped they would repaint that claim #3D4644 on a dark frame and
+   lose it. The phone answers the same problem its own way. */
+@media(min-width:701px){
+  html.has-hero-film .eyebrow{ color:var(--ink);opacity:.72 }
+  html.has-hero-film .hero-r{ color:#3D4644 }
+  html.has-hero-film .hero-meta dt{ color:#4E5654 }
+  html.has-hero-film .hero-meta dd{ color:var(--ink);font-weight:500 }
+  html.has-hero-film .hero-index a{ color:#39423F;border-bottom-color:rgb(11 12 12 / .18) }
+  html.has-hero-film .hero-index a i{ color:#6B7370 }
+  html.has-hero-film .hero-index a:hover{ color:var(--ink);border-bottom-color:var(--ink) }
+}
 
 /* ==================================================================
    03 · THE TURN

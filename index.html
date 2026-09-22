@@ -78,6 +78,11 @@
            poster="/film/own_01_fall_poster.jpg">
       <!-- webm first: firefox scrubs mp4 choppily even at one keyframe per
            frame. ios safari refuses webm, so it falls through to the mp4. -->
+      <!-- the phone takes the 854 encode, 0.8MB against 2.0. it is listed
+           first because resource selection stops at the first source whose
+           media and type both match, and it is mp4 only: the webm is larger
+           than the mp4 it would replace at this size. -->
+      <source src="/film/hero_scrub_854.mp4" type="video/mp4" media="(max-width:700px)">
       <source src="/film/hero_scrub.webm" type="video/webm">
       <source src="/film/hero_scrub.mp4" type="video/mp4">
     </video>

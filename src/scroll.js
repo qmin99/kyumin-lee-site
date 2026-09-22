@@ -59,39 +59,49 @@ export function initScroll({ reduce = false } = {}) {
       .from(el.querySelector('.lb'), { scaleX: 0, transformOrigin: 'left center', duration: 0.75, ease: 'house' }, 0.08)
   })
 
-  mm.add('(min-width: 901px)', () => {
-    /* ---- the hero object ----
-       currentTime is driven straight off the scroll rather than played, so
-       the fall belongs to the reader's hand. The seek is written through a
-       quickTo: assigning currentTime on every scroll event asks the decoder
-       for frames faster than it can answer and the picture stalls. */
+  /* ---- the hero object ----
+     currentTime is driven straight off the scroll rather than played, so
+     the fall belongs to the reader's hand.
+
+     `step` is the smallest move worth asking the decoder for. Assigning
+     currentTime faster than it can answer is what stalls the picture, so
+     the phone asks for roughly a third as many frames as the desktop and
+     leans on a longer scrub to smooth what it skips. It also reads the
+     854 encode, picked by the media attribute on the source, which is a
+     fifth of the bytes and correspondingly cheaper to seek in. */
+  const heroScrub = ({ step, scrub }) => {
     const hf = document.getElementById('scrubfilm')
-    if (hf) {
-      document.documentElement.classList.add('has-hero-film')
-      const state = { t: 0 }
-      let dur = 0
-      const bind = () => {
-        dur = hf.duration
-        if (!dur || !isFinite(dur)) return
-        gsap.to(state, {
-          t: dur, ease: 'none',
-          scrollTrigger: {
-            trigger: '#s1', start: 'top top', end: 'bottom top', scrub: 0.35,
-          },
-          onUpdate() {
-            if (hf.readyState < 2) return
-            const want = Math.min(dur - 0.01, Math.max(0, state.t))
-            if (Math.abs(hf.currentTime - want) > 0.016) hf.currentTime = want
-          },
-        })
-        ScrollTrigger.refresh()
-      }
-      if (hf.readyState >= 1) bind()
-      else hf.addEventListener('loadedmetadata', bind, { once: true })
-      /* one play/pause primes the decoder, otherwise the first seek on a
-         cold element paints nothing */
-      hf.play().then(() => hf.pause()).catch(() => {})
+    if (!hf) return
+    document.documentElement.classList.add('has-hero-film')
+    const state = { t: 0 }
+    let dur = 0
+    const bind = () => {
+      dur = hf.duration
+      if (!dur || !isFinite(dur)) return
+      gsap.to(state, {
+        t: dur, ease: 'none',
+        scrollTrigger: {
+          trigger: '#s1', start: 'top top', end: 'bottom top', scrub,
+        },
+        onUpdate() {
+          if (hf.readyState < 2) return
+          const want = Math.min(dur - 0.01, Math.max(0, state.t))
+          if (Math.abs(hf.currentTime - want) > step) hf.currentTime = want
+        },
+      })
+      ScrollTrigger.refresh()
     }
+    if (hf.readyState >= 1) bind()
+    else hf.addEventListener('loadedmetadata', bind, { once: true })
+    /* one play/pause primes the decoder, otherwise the first seek on a
+       cold element paints nothing */
+    hf.play().then(() => hf.pause()).catch(() => {})
+  }
+
+  mm.add('(max-width: 900px)', () => { heroScrub({ step: 0.05, scrub: 0.5 }) })
+
+  mm.add('(min-width: 901px)', () => {
+    heroScrub({ step: 0.016, scrub: 0.35 })
 
     /* ---- hero: the two halves part, and the rule holds ---- */
     gsap.timeline({
