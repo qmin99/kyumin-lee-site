@@ -216,6 +216,41 @@ export function createFilm(host, { onDone, onSettle, onHandover, quality = '4k',
   }
   frame()
 
+  /* ---------- the gap ----------
+     Between the first paint and the moment both textures can play, the
+     host is a flat #04090D with nothing on it. The instruments cannot
+     help: they sit at opacity 0 until the timeline runs, which is the
+     same moment the gap ends.
+
+     So the wait gets its own picture. A line draws across the middle
+     while it lasts, then the black splits along that line and the
+     footage is already behind it. It is the waterline the rest of the
+     page is built on, used before the page exists.
+
+     The line cannot just run to the end, because the wait has no known
+     length. It eases toward seven eighths over four seconds, which is
+     the ceiling the ready promise times out at, and closes the last
+     eighth only once the footage is actually there. A line that filled
+     early and sat still would say the opposite of what it is for. */
+  const veil = document.createElement('div')
+  veil.className = 'iv'
+  veil.innerHTML = '<i class="iv-top"></i><i class="iv-bot"></i><b class="iv-line"></b>'
+  host.appendChild(veil)
+  const vTop = veil.querySelector('.iv-top')
+  const vBot = veil.querySelector('.iv-bot')
+  const vLine = veil.querySelector('.iv-line')
+  const drawing = gsap.fromTo(vLine, { scaleX: 0 }, { scaleX: 0.88, duration: 4, ease: 'power2.out' })
+
+  function openVeil() {
+    drawing.kill()
+    return gsap.timeline()
+      .to(vLine, { scaleX: 1, duration: 0.22, ease: 'power2.in' })
+      .to(vTop, { yPercent: -100, duration: 0.95, ease: 'expo.inOut' })
+      .to(vBot, { yPercent: 100, duration: 0.95, ease: 'expo.inOut' }, '<')
+      .to(vLine, { opacity: 0, duration: 0.5, ease: 'power2.out' }, '<0.2')
+      .call(() => veil.remove())
+  }
+
   const ready = new Promise((res) => {
     let n = 0
     const done = () => { if (++n >= 2) res() }
@@ -259,7 +294,13 @@ export function createFilm(host, { onDone, onSettle, onHandover, quality = '4k',
 
   /* `hold` is the dev inspector: without it the ready promise would
      immediately override an external pause */
-  ready.then(() => { if (!hold) tl.play() })
+  ready.then(() => {
+    if (hold) return
+    /* the split and the film run together, so what comes out from behind
+       the black is already moving rather than waiting to be started */
+    openVeil()
+    tl.play()
+  })
 
   return {
     timeline: tl,
@@ -272,9 +313,13 @@ export function createFilm(host, { onDone, onSettle, onHandover, quality = '4k',
         lift: S.lift,
       }
     },
-    skip() { tl.progress(1) },
+    /* a skip during the gap has to take the black with it, or the page
+       is handed a film it cannot see */
+    skip() { drawing.kill(); veil.remove(); tl.progress(1) },
     dispose() {
       dead = true
+      drawing.kill()
+      veil.remove()
       cancelAnimationFrame(raf)
       removeEventListener('resize', resize)
       tl.kill()

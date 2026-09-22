@@ -681,6 +681,22 @@ footer{ background:#FAFAFA; }
 /* ---- film canvas ---- */
 .film-cv{position:absolute;inset:0;width:100%;height:100%;display:block}
 
+/* ---- the gap before the film ----
+   Two halves of the ground and the line they part along. The line is
+   foam over abyss, which is the one pairing on this page that reads as
+   light rather than as paint, and it carries its own bloom so the black
+   around it looks lit instead of painted on. Built and removed by
+   film.js: it exists only for the length of the wait. */
+.iv{position:absolute;inset:0;z-index:2;pointer-events:none}
+.iv-top,.iv-bot{position:absolute;left:0;right:0;height:50.2%;background:#04090D}
+.iv-top{top:0} .iv-bot{bottom:0}
+.iv-line{
+  position:absolute;left:11%;right:11%;top:50%;height:1px;
+  transform:scaleX(0);transform-origin:50% 50%;
+  background:linear-gradient(90deg,transparent,var(--foam),transparent);
+  box-shadow:0 0 10px var(--foam), 0 0 22px rgb(127 214 199 / .5);
+}
+
 /* ---- education row sweep. driven by --sweep from gsap ---- */
 .edu-row{--sweep:1;position:relative;overflow:hidden}
 .edu-row::before{
