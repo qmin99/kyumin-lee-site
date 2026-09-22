@@ -241,10 +241,17 @@ export function createFilm(host, { onDone, onSettle, onHandover, quality = '4k',
   const vLine = veil.querySelector('.iv-line')
   const drawing = gsap.fromTo(vLine, { scaleX: 0 }, { scaleX: 0.88, duration: 4, ease: 'power2.out' })
 
-  function openVeil() {
+  /* onPart fires the instant the black starts to move, which is when the
+     first frame becomes visible in the sliver at the centre. The film is
+     started there rather than when this timeline begins: starting both
+     together cost the footage its first second and a bit, all of it spent
+     behind an unbroken black, and the reveal then opened onto a shot
+     already in progress. */
+  function openVeil(onPart) {
     drawing.kill()
     return gsap.timeline()
       .to(vLine, { scaleX: 1, duration: 0.22, ease: 'power2.in' })
+      .call(() => onPart?.())
       .to(vTop, { yPercent: -100, duration: 0.95, ease: 'expo.inOut' })
       .to(vBot, { yPercent: 100, duration: 0.95, ease: 'expo.inOut' }, '<')
       .to(vLine, { opacity: 0, duration: 0.5, ease: 'power2.out' }, '<0.2')
@@ -296,10 +303,10 @@ export function createFilm(host, { onDone, onSettle, onHandover, quality = '4k',
      immediately override an external pause */
   ready.then(() => {
     if (hold) return
-    /* the split and the film run together, so what comes out from behind
-       the black is already moving rather than waiting to be started */
-    openVeil()
-    tl.play()
+    /* the film starts as the black parts, not as this begins, so the
+       reveal opens on the first frame instead of onto a shot already
+       a second in */
+    openVeil(() => tl.play())
   })
 
   return {
