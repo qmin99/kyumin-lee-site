@@ -334,7 +334,12 @@ function openGround() {
   mark('ground:open')
   document.documentElement.classList.add('entered')
   if (reduce) return
-  gsap.fromTo('#field', { opacity: 0 }, { opacity: 0.5, duration: 1.6, ease: 'power2.out' })
+  /* The target comes from --field-op so the phone's lower setting is not
+     overwritten. This tween writes an inline opacity, which outranks the
+     stylesheet, so hardcoding the number here silently beat the media
+     query that tried to calm the rain down on a small screen. */
+  const fieldOp = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--field-op')) || 0.5
+  gsap.fromTo('#field', { opacity: 0 }, { opacity: fieldOp, duration: 1.6, ease: 'power2.out' })
 }
 
 /* ---- phase two: the build ----

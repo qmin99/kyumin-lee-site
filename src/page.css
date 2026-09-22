@@ -851,7 +851,7 @@ html.inverted .data{ color:var(--foam); }
 /* ---- the field becomes a global layer, not a hero decoration ---- */
 #field{
   position:fixed;inset:0;height:100svh;
-  z-index:0;pointer-events:none;opacity:.5;
+  z-index:0;pointer-events:none;opacity:var(--field-op,.5);
 }
 html.no-motion #field{ display:none; }
 /* .top is deliberately absent here. It is position:fixed at line 85, and
@@ -2628,10 +2628,16 @@ html.no-motion .wb-veil,html.no-motion .wb-dev,html.no-motion .wb-wet{display:no
     transform:rotate(45deg);
   }
 
-  /* the field is a decorative rain of vertical lines. against the closed
-     scrim it stopped reading as texture and started reading as a glitch
-     across the index, so the phone does without it */
-  #field{ display:none }
+  /* The rain on the glass stays: it is one of the two things a visitor
+     actually notices. It was switched off here for a while because at
+     .5 over the closed scrim the streaks stopped reading as water and
+     started reading as a rendering fault across the index. The answer
+     was the opacity, not the canvas.
+
+     It lives in a custom property because main.js fades the canvas in
+     with gsap, which writes an inline opacity and so outranks any rule
+     here. The tween reads this value rather than carrying its own. */
+  :root{ --field-op:.13 }
 
   /* At 390px a 16:9 skydive keeps only a vertical slice of itself, so
      there is no jump to frame here. Shortening the film into a band was

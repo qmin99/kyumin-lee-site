@@ -546,16 +546,31 @@ void main(){
        word. */
     ptCam.position.z = Math.max(10.4, (WORD_HALF * 1.10) / (V_HALF * ptCam.aspect))
 
-    /* In portrait the type stacks into the lower two thirds and the word,
-       centred, lands on top of the display line. Lifting the camera puts the
-       word in the clear upper half, which is also the natural reading order
-       on a phone: the object, then what it is called. */
-    /* Lifted on desktop too now. The foot of the frame carries two panes
-       about 260px tall, and a word centred in the frame put its lower half
-       behind them. Negative y raises the scene: 1.15 in portrait where the
-       type stacks under the word, 0.55 in landscape where it only needs to
-       clear the band. */
-    ptCam.position.y = ptCam.aspect < 0.95 ? -1.9 : -0.95
+    /* The word is centred in whatever the type layer actually leaves above
+       the band, rather than lifted by a fixed amount.
+
+       Two hand picked numbers held only while the band was the height it
+       happened to be on the phone this was tuned on. Open the page in an
+       in app browser, where the host's chrome takes a third of the screen,
+       and the band keeps its height while the frame loses a quarter of its
+       own: the fixed lift then drew the word straight through the card.
+
+       Negative y raises the scene. V_HALF * z is the visible world half
+       height at the word's plane, which converts the free region's offset
+       from centre out of pixels and into world units. At a desktop aspect
+       this lands within a twentieth of the 0.95 it replaces. */
+    const visH = 2 * V_HALF * ptCam.position.z
+    const typeEl = section.querySelector('.turn-type')
+    const bandEl = section.querySelector('.turn-band')
+    if (typeEl && bandEl) {
+      const cs = getComputedStyle(typeEl)
+      const freeTop = parseFloat(cs.paddingTop) || 0
+      const freeBot = h - bandEl.getBoundingClientRect().height - (parseFloat(cs.paddingBottom) || 0)
+      const freeMid = (freeTop + freeBot) / 2
+      ptCam.position.y = -((h / 2 - freeMid) / h) * visH
+    } else {
+      ptCam.position.y = ptCam.aspect < 0.95 ? -1.9 : -0.95
+    }
 
     ptCam.updateProjectionMatrix()
     setMouth()
